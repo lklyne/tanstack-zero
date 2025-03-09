@@ -10,7 +10,8 @@ export const useZero = _useZero<typeof schema>
 const z = new Zero({
 	userID: 'guest',
 	schema: zeroSchema,
-	kvStore: 'mem',
+	auth: undefined,
+	kvStore: 'idb',
 	// biome-ignore lint/style/noNonNullAssertion: <explanation>
 	server: import.meta.env.VITE_PUBLIC_SERVER!,
 })

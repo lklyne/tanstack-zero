@@ -27,7 +27,7 @@ function PersonList() {
 
 function App() {
 	const z = useZero()
-
+	const [persons] = useQuery(z.query.persons)
 	return (
 		<>
 			<div className="text-center ">
@@ -57,16 +57,28 @@ function App() {
 						Learn TanStack
 					</a>
 					<h2>This should add a person to the zero database</h2>
-					<Button
-						onClick={() => {
-							z.mutate.persons.insert({
-								name: faker.person.fullName(),
-								id: crypto.randomUUID(),
-							})
-						}}
-					>
-						Test
-					</Button>
+					<div className="flex gap-2">
+						<Button
+							onClick={() => {
+								z.mutate.persons.insert({
+									name: faker.person.fullName(),
+									id: crypto.randomUUID(),
+								})
+							}}
+						>
+							Add Person
+						</Button>
+						<Button
+							onClick={() => {
+								z.mutate.persons.delete({
+									id: persons[0]?.id,
+								})
+							}}
+						>
+							Delete Person
+						</Button>
+					</div>
+
 					<PersonList />
 				</header>
 			</div>

@@ -10,7 +10,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - 5430:5432
+      - 5410:5432
     environment:
       POSTGRES_USER: user
       POSTGRES_DB: postgres
@@ -23,9 +23,9 @@ services:
       -c hot_standby=on 
       -c hot_standby_feedback=on
     volumes:
-      - router_zero_pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
       - ./:/docker-entrypoint-initdb.d
 
 volumes:
-  router_zero_pgdata:
+  pgdata:
     driver: local

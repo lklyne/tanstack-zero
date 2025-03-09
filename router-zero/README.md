@@ -19,8 +19,6 @@ bun zero-cache
 bun dev 
 ```
 
-
-
 ## Stack
 
 - Tanstack React Router
