@@ -9,12 +9,17 @@ Running the app
 # Start the database
 bun db:up
 
+# Push the schema to the database
+bun db:push
+
 # Start Zero Cache
 bun zero-cache
 
 # Start dev server
 bun dev 
 ```
+
+
 
 ## Stack
 
