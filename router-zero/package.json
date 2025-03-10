@@ -26,13 +26,13 @@
 		"@rocicorp/zero": "^0.16.2025022800",
 		"@tailwindcss/vite": "^4.0.12",
 		"@tanstack/react-form": "^1.0.5",
-		"@tanstack/react-router": "^1.112.18",
-		"@tanstack/router-devtools": "^1.114.0",
-		"@tanstack/router-plugin": "^1.113.0",
+		"@tanstack/react-router": "^1.114.4",
+		"@tanstack/router-devtools": "^1.114.4",
+		"@tanstack/router-plugin": "^1.114.4",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.40.0",
-		"drizzle-zero": "^0.5.1",
+		"drizzle-zero": "^0.5.2",
 		"lucide-react": "^0.479.0",
 		"pg": "^8.13.3",
 		"react": "^19.0.0",
@@ -58,5 +58,9 @@
 		"vitest": "^3.0.8",
 		"web-vitals": "^4.2.4"
 	},
-	"trustedDependencies": ["@biomejs/biome", "@rocicorp/zero-sqlite3", "esbuild"]
+	"trustedDependencies": [
+		"@biomejs/biome",
+		"@rocicorp/zero-sqlite3",
+		"esbuild"
+	]
 }
