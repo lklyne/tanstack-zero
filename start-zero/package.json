@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "auth:studio": "drizzle-kit studio --config auth-drizzle.config.ts",
     "db:up": "docker compose -p start_zero -f docker/docker-compose.yml up --remove-orphans",
     "dev": "vinxi dev",
     "format": "biome format",
