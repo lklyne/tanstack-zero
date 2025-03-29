@@ -22,7 +22,10 @@
     "start": "vinxi start",
     "test": "vitest run",
     "update-packages": "bunx taze -I --recursive",
-    "zero-cache": "source .env && zero-cache-dev -p src/db/schema.zero.ts --log-level debug"
+    "zero-cache": "source .env && zero-cache-dev -p src/db/schema.zero.ts --log-level debug",
+    "db:auth:generate": "drizzle-kit generate --config drizzle.config.auth.ts",
+    "db:auth:push": "drizzle-kit push --config drizzle.config.auth.ts",
+    "db:auth:studio": "drizzle-kit studio --config drizzle.config.auth.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
