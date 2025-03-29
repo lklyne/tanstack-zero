@@ -1,0 +1,188 @@
+---
+description: Zero: our primary database and sync engine. Important for any data fetching or mutation
+globs: 
+alwaysApply: false
+---
+# Zero Sync Engine Guidelines
+
+## Critical Core concepts
+
+- Follow these syntax guideslines 
+- Query the data once in your component
+- After a single query, we can assume the data is always up to date
+- We do not need to refresh or recheck the data
+
+## Best practices
+
+- Think carefully before making changes to [zero-setup.ts](mdc:src/lib/zero/zero-setup.ts)
+- Follow these guidelines very carefully. Zero is quite different from typical database management
+- 
+
+## Data Querying Best Practices
+
+- Start queries by selecting a table: `z.query.issue`
+- Sort results with `orderBy()`: `z.query.issue.orderBy('created', 'desc')`
+- Limit results with `limit()`: `z.query.issue.limit(100)`
+- Filter data with `where()`: `z.query.issue.where('priority', '>', 3)`
+- Use `one()` for queries that should return zero or one result
+- Use `start()` for pagination: `z.query.issue.start(lastIssue)`
+- Fetch related data with `related()`: `z.query.issue.related('creator')`
+
+## Query Lifecycle Management
+
+- Zero tracks which queries return each row
+- Data exists locally if and only if there is a query running that returns that data
+- UI queries (`useQuery`) live for the lifetime of the component
+- Preload queries (`preload()`) live until you call `cleanup()`
+- One-time queries (`run()`) are immediately destroyed
+- Be aware that open queries are currently leaked on page unload
+
+## Preloading Strategies
+
+- Preload common data to maximize the "local-first" feel
+- Use `preload()` for large datasets that don't need to be materialized into JS objects
+- Preloading is especially important before Zero Beta's consistency model improvements
+- Example: `z.query.issue.related('creator').limit(1000).preload()`
+
+## Data Mutation Patterns
+
+- Use built-in CRUD mutators: `insert()`, `update()`, `upsert()`, `delete()`
+- For partial updates, only specify the fields you want to change
+- Batch related mutations with `mutateBatch()` for atomicity
+- Mutations are optimistic by default
+
+## Authentication & Permissions
+
+- Zero uses JWT-based authentication
+- Set the `auth` option when constructing a Zero instance
+- The `userID` must match the `sub` field from the JWT
+- Permissions are defined in schema.ts using `definePermissions`
+- Access is denied by default if no rules are specified
+- Use `ANYONE_CAN` only during development
+
+
+## Framework Integration
+
+- Zero has built-in support for React and SolidJS
+- Use `useZero()` to access the Zero instance in components
+- Use `useQuery()` for reactive data binding
+- Check `result.type` to know if data is complete or partial
+
+## Code Examples
+
+### Basic Query Pattern
+
+```tsx
+// Query with filtering and relationships
+const issueQuery = z.query.issue
+  .related('creator')
+  .related('labels')
+  .where('priority', '>', 3)
+  .orderBy('created', 'desc')
+  .limit(100)
+
+const [issues, issuesDetail] = useQuery(issueQuery)
+
+// Check if results are complete
+if (issuesDetail.type === 'complete') {
+  console.log('All data is present')
+} else {
+  console.log('Some data is missing')
+}
+```
+
+### Preloading Data
+
+```tsx
+// Preload data without materializing to JS objects
+z.query.issue.related('creator').related('labels').orderBy('created', 'desc').limit(1000).preload()
+```
+
+### Basic Mutations
+
+```tsx
+// Insert a new record
+z.mutate.user.insert({
+  id: nanoid(),
+  username: 'sam',
+  language: 'js',
+})
+
+// Update an existing record
+z.mutate.user.update({
+  id: samID,
+  language: 'typescript',
+})
+
+// Delete a record
+z.mutate.user.delete({
+  id: samID,
+})
+```
+
+### Batch Mutations
+
+```tsx
+// Perform multiple mutations atomically
+z.mutateBatch(async (tx) => {
+  const samID = nanoid()
+  tx.user.create({
+    id: samID,
+    username: 'sam',
+  })
+
+  const langID = nanoid()
+  tx.language.insert({
+    id: langID,
+    userID: samID,
+    name: 'js',
+  })
+})
+```
+
+### Permission Rules
+
+```tsx
+// Define permissions based on JWT claims
+export const permissions = definePermissions<AuthData, Schema>(schema, () => {
+  const allowIfIssueCreator = (authData: AuthData, { cmp }: ExpressionBuilder<IssueSchema>) =>
+    cmp('creatorID', '=', authData.sub)
+
+  return {
+    issue: {
+      row: {
+        select: ANYONE_CAN,
+        insert: ANYONE_CAN,
+        update: [allowIfIssueCreator],
+        delete: [allowIfIssueCreator],
+      },
+    },
+  }
+})
+```
+
+## Important Warnings from the Docs
+
+```tsx
+// ⚠️ Warning: Data returned from ZQL should be considered immutable
+// Don't do this:
+const issue = issues[0]
+issue.title = 'New title' // Modifies the cached value everywhere!
+
+// Instead, clone the data and modify the clone
+const issueCopy = { ...issue, title: 'New title' }
+```
+
+```tsx
+// ⚠️ Warning: Permission rule functions have limitations
+// Only property access of AuthData is allowed
+// You cannot:
+// - Iterate over properties or array elements in the auth token
+// - Use any JS features beyond property access of AuthData
+// - Use any conditional or global state
+```
+
+```tsx
+// ⚠️ Warning: Zero currently leaks queries on page unload
+// This is a known issue that will be fixed in a future release
+```

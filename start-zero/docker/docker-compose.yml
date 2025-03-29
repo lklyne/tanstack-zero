@@ -25,7 +25,35 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./:/docker-entrypoint-initdb.d
+    networks:
+      - app_network
+
+  # Auth database (Better Auth)
+  auth_db:
+    image: postgres:16.2-alpine
+    ports:
+      - '5431:5432'
+    environment:
+      POSTGRES_USER: 'auth_user'
+      POSTGRES_PASSWORD: 'auth_password'
+      POSTGRES_DB: 'better_auth'
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U auth_user']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
 
 volumes:
   pgdata:
+    driver: local
+  auth_pgdata:
     driver: local
