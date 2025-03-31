@@ -6,6 +6,7 @@ import {
 	createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { AuthTest } from '../components/AuthTest'
 import Header from '../components/Header'
 
 import appCss from '../styles.css?url'
@@ -39,7 +40,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	component: () => (
 		<RootDocument>
 			<Header />
-
+			<AuthTest />
 			<Outlet />
 			<TanStackRouterDevtools />
 		</RootDocument>
