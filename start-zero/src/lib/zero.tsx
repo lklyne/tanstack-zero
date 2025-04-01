@@ -2,8 +2,8 @@ import type { schema } from '@/db/schema.zero'
 import { useZero as _useZero } from '@rocicorp/zero/react'
 
 import { zeroSchema } from '@/db/schema.zero'
+import { authClient } from '@/lib/auth-client'
 import { Zero } from '@rocicorp/zero'
-
 export const useZero = _useZero<typeof schema>
 
 // await authClient.getSession({
@@ -16,15 +16,19 @@ export const useZero = _useZero<typeof schema>
 
 export async function initZero() {
 	console.log('🟥 Constructing a new Zero instance!')
-
-	const z = new Zero({
-		userID: 'guest',
+	const { data } = await authClient.getSession()
+	const zero = new Zero({
+		auth: async () => {
+			const response = await fetch('/api/auth/token')
+			const { token } = await response.json()
+			return token
+		},
+		userID: data?.user.id ?? 'guest',
 		schema: zeroSchema,
-		auth: undefined,
 		kvStore: import.meta.client ? 'idb' : 'mem',
 		// biome-ignore lint/style/noNonNullAssertion: <explanation>
 		server: import.meta.env.VITE_PUBLIC_SERVER!,
 	})
 
-	return z
+	return zero
 }
