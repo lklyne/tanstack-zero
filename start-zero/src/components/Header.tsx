@@ -22,6 +22,15 @@ export default function Header() {
 				<div className='px-2 font-bold'>
 					<Link to='/demo/start/server-funcs'>Start - Server Functions</Link>
 				</div>
+				<div className='px-2 font-bold'>
+					<Link to='/auth/login'>Login</Link>
+				</div>
+				<div className='px-2 font-bold'>
+					<Link to='/auth/signup'>Signup</Link>
+				</div>
+				<div className='px-2 font-bold'>
+					<Link to='/auth/account'>Account</Link>
+				</div>
 			</nav>
 		</header>
 	)

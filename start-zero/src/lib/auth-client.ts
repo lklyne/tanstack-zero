@@ -6,6 +6,15 @@ export const authClient = createAuthClient({
 	// plugins: [], // We can add plugins later if needed
 })
 
+// sign in with google
+export const signInWithGoogle = async () => {
+	const data = await authClient.signIn.social({
+		provider: 'google',
+	})
+
+	return data
+}
+
 // Re-export commonly used methods and hooks for cleaner imports
 export const {
 	signIn,

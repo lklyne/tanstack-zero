@@ -2,6 +2,7 @@ import { authDb } from '@/db/auth-db'
 import * as authSchema from '@/db/auth-schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { jwt } from 'better-auth/plugins'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -28,15 +29,29 @@ if (!secret || !origin) {
 
 export const auth = betterAuth({
 	secret,
+
 	basePath: '/api/auth',
 	database: drizzleAdapter(authDb, {
 		schema: authSchema,
 		provider: 'pg',
 	}),
+
+	plugins: [jwt()],
+
 	serverConfig: {
 		origin,
 	},
+
 	emailAndPassword: {
 		enabled: true,
+		minPasswordLength: 2,
+		autoSignIn: true,
+	},
+
+	socialProviders: {
+		google: {
+			clientId: process.env.GOOGLE_CLIENT_ID as string,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+		},
 	},
 })

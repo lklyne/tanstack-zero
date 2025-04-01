@@ -6,6 +6,14 @@ import { Zero } from '@rocicorp/zero'
 
 export const useZero = _useZero<typeof schema>
 
+// await authClient.getSession({
+// 	fetchOptions: {
+// 		onSuccess: (ctx) => {
+// 			const jwt = ctx.response.headers.get('set-auth-jwt')
+// 		},
+// 	},
+// })
+
 export async function initZero() {
 	console.log('🟥 Constructing a new Zero instance!')
 
