@@ -8,6 +8,7 @@ export const Route = createFileRoute('/auth/account')({
 function RouteComponent() {
 	return (
 		<div>
+			<h1>Account</h1>
 			<AccountOverview />
 		</div>
 	)
