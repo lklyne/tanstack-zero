@@ -1,4 +1,4 @@
-import { authClient } from '@/lib/auth-client'
+import { authClient, signOut } from '@/lib/auth-client'
 import { useCallback, useEffect, useState } from 'react'
 import { Button } from './ui/button'
 
@@ -55,6 +55,8 @@ const AccountOverview = () => {
 							</pre>
 						)}
 					</div>
+
+					<Button onClick={() => signOut()}>Sign Out</Button>
 
 					<div>
 						<h2>Debug Info:</h2>
