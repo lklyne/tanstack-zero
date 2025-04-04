@@ -1,7 +1,6 @@
 // https://github.com/BriefHQ/drizzle-zero
 import {
 	ANYONE_CAN,
-	ANYONE_CAN_DO_ANYTHING,
 	type ExpressionBuilder,
 	type InsertValue,
 	type PermissionsConfig,
