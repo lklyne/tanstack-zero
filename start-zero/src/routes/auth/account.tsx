@@ -7,9 +7,10 @@ export const Route = createFileRoute('/auth/account')({
 
 function RouteComponent() {
 	return (
-		<div>
-			<h1>Account</h1>
-			<AccountOverview />
+		<div className='container mx-auto flex flex-col justify-center min-h-screen'>
+			<div className='max-w-5xl w-full py-24'>
+				<AccountOverview />
+			</div>
 		</div>
 	)
 }
