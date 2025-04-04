@@ -2,36 +2,76 @@ import type { schema } from '@/db/schema.zero'
 import { useZero as _useZero } from '@rocicorp/zero/react'
 
 import { zeroSchema } from '@/db/schema.zero'
-import { authClient } from '@/lib/auth-client'
+import { signOut } from '@/lib/auth-client'
 import { Zero } from '@rocicorp/zero'
+
 export const useZero = _useZero<typeof schema>
 
-async function getAuthToken(): Promise<string | undefined> {
+async function fetchAuthData() {
 	try {
 		const response = await fetch('/api/auth/token')
-		if (!response.ok) {
-			console.warn('Failed to fetch auth token:', response.statusText)
-			return undefined
+		const authJwt = response.headers.get('set-auth-jwt')
+		if (authJwt) {
+			return { jwt: authJwt }
 		}
-		const { token } = await response.json()
-		return token
-	} catch (error) {
-		console.warn('Error fetching auth token:', error)
-		return undefined
+		const tokenData = await response.json()
+		return { jwt: tokenData.token }
+	} catch (err) {
+		console.error('Error fetching JWT:', err)
+		return { jwt: null }
 	}
 }
 
 export async function initZero() {
-	console.log('🟥 Constructing a new Zero instance!')
+	console.log('🟥 Starting Zero initialization...')
 
-	const zero = new Zero({
-		auth: undefined,
-		userID: 'guest',
-		schema: zeroSchema,
-		kvStore: import.meta.client ? 'idb' : 'mem',
-		// biome-ignore lint/style/noNonNullAssertion: <explanation>
-		server: import.meta.env.VITE_PUBLIC_SERVER!,
+	const serverUrl = import.meta.env.VITE_PUBLIC_SERVER
+	if (!serverUrl) {
+		throw new Error(
+			'VITE_PUBLIC_SERVER environment variable is not set. Zero cannot connect.',
+		)
+	}
+
+	// Fetch auth data during initialization
+	const { jwt } = await fetchAuthData()
+	const userId = jwt ? getUserIdFromJwt(jwt) : 'guest'
+
+	// Log initialization state
+	console.log('🔐 Zero Auth State:', {
+		isAuthenticated: !!jwt,
+		userMode: userId === 'guest' ? 'Guest Mode' : 'Authenticated User',
+		userId,
+		hasJwt: !!jwt,
 	})
 
+	const zero = new Zero({
+		auth: (error?: 'invalid-token') => {
+			if (error === 'invalid-token') {
+				console.error('❌ Zero reported invalid token. Attempting sign out.')
+				signOut().catch((err) => console.error('Sign out failed:', err))
+				return undefined
+			}
+			console.log('🔑 Zero requested auth token.')
+			return jwt ?? undefined
+		},
+		userID: userId,
+		schema: zeroSchema,
+		kvStore: import.meta.client ? 'idb' : 'mem',
+		server: serverUrl,
+	})
+
+	console.log('✅ Zero initialization complete!')
 	return zero
+}
+
+// Helper function to extract userId from JWT
+function getUserIdFromJwt(jwt: string): string {
+	try {
+		const [, payload] = jwt.split('.')
+		const decoded = JSON.parse(atob(payload))
+		return decoded.sub || 'guest'
+	} catch (err) {
+		console.error('Error decoding JWT:', err)
+		return 'guest'
+	}
 }
