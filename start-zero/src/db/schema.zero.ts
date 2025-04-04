@@ -6,6 +6,7 @@ import {
 	type InsertValue,
 	type PermissionsConfig,
 	type Row,
+	type Schema,
 	definePermissions,
 } from '@rocicorp/zero'
 import { createZeroSchema } from 'drizzle-zero'
@@ -43,8 +44,19 @@ export type InsertPerson = InsertValue<typeof zeroSchema.tables.persons>
 export const permissions = definePermissions<AuthData, ZeroSchema>(
 	zeroSchema,
 	() => {
+		const allowIfLoggedIn = (
+			authData: AuthData,
+			{ cmpLit }: ExpressionBuilder<ZeroSchema, 'persons'>,
+		) => cmpLit(authData.sub, 'IS NOT', null)
+
 		return {
-			persons: ANYONE_CAN_DO_ANYTHING,
+			persons: {
+				row: {
+					select: ANYONE_CAN,
+					insert: ANYONE_CAN,
+					delete: [allowIfLoggedIn],
+				},
+			},
 		} satisfies PermissionsConfig<AuthData, ZeroSchema>
 	},
 )
