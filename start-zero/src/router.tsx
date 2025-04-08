@@ -11,6 +11,7 @@ export const createRouter = () => {
 		routeTree,
 		context: {
 			z: undefined,
+			session: null,
 		},
 		scrollRestoration: true,
 	})

@@ -2,10 +2,13 @@ import { Button } from '@/components/ui/button'
 import { useZero } from '@/lib/zero'
 import { faker } from '@faker-js/faker'
 import { useQuery } from '@rocicorp/zero/react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouteContext } from '@tanstack/react-router'
+
 export const Route = createFileRoute('/app/')({
 	component: RouteComponent,
 	loader: async ({ context }) => {
+		// Log the session from the root context
+		console.log('Session in /app/ loader:', context.session)
 		// preload
 		const z = await context.z
 		z.query.persons.preload()
@@ -23,9 +26,17 @@ function PersonList() {
 function RouteComponent() {
 	const z = useZero()
 	const [persons] = useQuery(z.query.persons)
+	const { session } = useRouteContext({ from: '__root__' })
+
 	return (
 		<div>
 			Hello "/app/"!
+			<div>
+				<h3>Session Data:</h3>
+				<pre className='text-xs text-left'>
+					{JSON.stringify(session, null, 2)}
+				</pre>
+			</div>
 			<div>
 				{/* button to add and delete persons */}
 				<Button
