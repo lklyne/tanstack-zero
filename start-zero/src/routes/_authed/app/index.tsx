@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker'
 import { useQuery } from '@rocicorp/zero/react'
 import { createFileRoute, useRouteContext } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/temp-app-main/')({
+export const Route = createFileRoute('/_authed/app/')({
 	component: RouteComponent,
 	loader: async ({ context }) => {
 		// Log the session from the root context

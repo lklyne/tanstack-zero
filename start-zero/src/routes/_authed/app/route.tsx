@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { use } from 'react'
 
-export const Route = createFileRoute('/temp-app-main')({
+export const Route = createFileRoute('/_authed/app')({
 	component: RouteComponent,
 	context: () => ({
 		// Initialize the zero instance, this won't serialize the zero instance (beforeLoad will)
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/temp-app-main')({
 })
 
 function RouteComponent() {
-	const { z: zeroPromise } = useRouteContext({ from: '/temp-app-main' })
+	const { z: zeroPromise } = useRouteContext({ from: '/_authed/app' })
 
 	if (!zeroPromise) {
 		// This should ideally not happen due to the loader awaiting z

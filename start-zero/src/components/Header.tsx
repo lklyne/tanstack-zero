@@ -7,9 +7,9 @@ export default function Header() {
 				<div className='px-2 font-bold'>
 					<Link to='/'>Home</Link>
 				</div>
-				<div className='px-2 font-bold'>
+				{/* <div className='px-2 font-bold'>
 					<Link to='/app'>Zero App</Link>
-				</div>
+				</div> */}
 
 				<div className='px-2 font-bold'>
 					<Link to='/demo/form/simple'>Simple Form</Link>
@@ -32,7 +32,7 @@ export default function Header() {
 					<Link to='/auth/account'>Account</Link>
 				</div>
 				<div className='px-2 font-bold'>
-					<Link to='/app-main'>Authed App</Link>
+					<Link to='/app'>Authed App</Link>
 				</div>
 			</nav>
 		</header>
