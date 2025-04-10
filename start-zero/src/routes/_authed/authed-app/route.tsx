@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { use } from 'react'
 
-export const Route = createFileRoute('/app')({
+export const Route = createFileRoute('/_authed/authed-app')({
 	component: RouteComponent,
 	context: () => ({
 		// Initialize the zero instance, this won't serialize the zero instance (beforeLoad will)
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/app')({
 })
 
 function RouteComponent() {
-	const { z: zeroPromise } = useRouteContext({ from: '/app' })
+	const { z: zeroPromise } = useRouteContext({ from: '/_authed/authed-app' })
 	const z = use(zeroPromise) // `use` hook is available in React 19
 
 	return (

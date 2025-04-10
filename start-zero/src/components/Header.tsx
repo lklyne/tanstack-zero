@@ -31,6 +31,9 @@ export default function Header() {
 				<div className='px-2 font-bold'>
 					<Link to='/auth/account'>Account</Link>
 				</div>
+				<div className='px-2 font-bold'>
+					<Link to='/dashboard'>Dashboard</Link>
+				</div>
 			</nav>
 		</header>
 	)

@@ -5,7 +5,7 @@ import {
 	type InsertValue,
 	type PermissionsConfig,
 	type Row,
-	type Schema,
+	// type Schema,
 	definePermissions,
 } from '@rocicorp/zero'
 import { createZeroSchema } from 'drizzle-zero'
@@ -18,7 +18,7 @@ interface AuthData {
 }
 
 export const zeroSchema = createZeroSchema(drizzleSchema, {
-	version: 1,
+	// version: 1,
 	// Specify which tables and columns to include in the Zero schema.
 	// This allows for the "expand/migrate/contract" pattern recommended in the Zero docs.
 	// When a column is first added, it should be set to false, and then changed to true

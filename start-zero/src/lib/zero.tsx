@@ -23,7 +23,7 @@ async function fetchAuthData() {
 }
 
 export async function initZero() {
-	console.log('🟥 Starting Zero initialization...')
+	console.log('🟨 Starting Zero initialization...')
 
 	const serverUrl = import.meta.env.VITE_PUBLIC_SERVER
 	if (!serverUrl) {
@@ -37,7 +37,7 @@ export async function initZero() {
 	const userId = jwt ? getUserIdFromJwt(jwt) : 'guest'
 
 	// Log initialization state
-	console.log('🔐 Zero Auth State:', {
+	console.log('🟧 Zero Auth State:', {
 		isAuthenticated: !!jwt,
 		userMode: userId === 'guest' ? 'Guest Mode' : 'Authenticated User',
 		userId,
@@ -47,11 +47,11 @@ export async function initZero() {
 	const zero = new Zero({
 		auth: (error?: 'invalid-token') => {
 			if (error === 'invalid-token') {
-				console.error('❌ Zero reported invalid token. Attempting sign out.')
+				console.error('🟥 Zero reported invalid token. Attempting sign out.')
 				signOut().catch((err) => console.error('Sign out failed:', err))
 				return undefined
 			}
-			console.log('🔑 Zero requested auth token.')
+			console.log('🟪 Zero requested auth token.')
 			return jwt ?? undefined
 		},
 		userID: userId,
@@ -60,7 +60,7 @@ export async function initZero() {
 		server: serverUrl,
 	})
 
-	console.log('✅ Zero initialization complete!')
+	console.log('🟩 Zero initialization complete!')
 	return zero
 }
 
