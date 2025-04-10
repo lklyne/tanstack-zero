@@ -4,14 +4,16 @@ import { faker } from '@faker-js/faker'
 import { useQuery } from '@rocicorp/zero/react'
 import { createFileRoute, useRouteContext } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_authed/authed-app/')({
+export const Route = createFileRoute('/temp-app-main/')({
 	component: RouteComponent,
 	loader: async ({ context }) => {
 		// Log the session from the root context
-		console.log('Session in /_authed/authed-app/ loader:', context.session)
+		console.log('Session in /_authed/app-main/ loader:', context.session)
 		// preload
 		const z = await context.z
-		z.query.persons.preload()
+		if (z) {
+			z.query.persons.preload()
+		}
 	},
 })
 

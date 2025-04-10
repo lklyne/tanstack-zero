@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { use } from 'react'
 
-export const Route = createFileRoute('/app')({
+export const Route = createFileRoute('/temp-app-main')({
 	component: RouteComponent,
 	context: () => ({
 		// Initialize the zero instance, this won't serialize the zero instance (beforeLoad will)
@@ -20,8 +20,14 @@ export const Route = createFileRoute('/app')({
 })
 
 function RouteComponent() {
-	const { z: zeroPromise } = useRouteContext({ from: '/app' })
-	const z = use(zeroPromise) // `use` hook is available in React 19
+	const { z: zeroPromise } = useRouteContext({ from: '/temp-app-main' })
+
+	if (!zeroPromise) {
+		// This should ideally not happen due to the loader awaiting z
+		return <div>Loading Zero...</div>
+	}
+
+	const z = use(zeroPromise)
 
 	return (
 		<ZeroProvider zero={z}>

@@ -32,7 +32,7 @@ export default function Header() {
 					<Link to='/auth/account'>Account</Link>
 				</div>
 				<div className='px-2 font-bold'>
-					<Link to='/dashboard'>Dashboard</Link>
+					<Link to='/app-main'>Authed App</Link>
 				</div>
 			</nav>
 		</header>
