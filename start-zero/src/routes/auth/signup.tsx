@@ -1,3 +1,4 @@
+import Header from '@/components/Header'
 import { SignUp } from '@/components/sign-up'
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -7,9 +8,9 @@ export const Route = createFileRoute('/auth/signup')({
 
 function SignUpPage() {
 	return (
-		<div className='flex flex-col flex-grow h-full w-full items-center justify-center p-4'>
-			<div className='w-full max-w-md'>
-				{/* Remove the onSignUp prop */}
+		<div className='flex flex-col flex-grow h-screen w-full items-center justify-center'>
+			<Header location='auth' />
+			<div className='w-full h-full flex flex-col items-center justify-center max-w-md'>
 				<SignUp />
 			</div>
 		</div>

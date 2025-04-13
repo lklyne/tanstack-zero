@@ -6,9 +6,9 @@ import {
 	createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import Header from '../components/Header'
 
-import appCss from '../styles.css?url'
+// Import global styles directly for side effects
+import '../styles.css'
 
 import { auth } from '@/lib/auth' // Assuming path alias is configured
 // Add imports for server function, web request, auth, and session type
@@ -67,17 +67,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				title: 'TanStack Start Starter',
 			},
 		],
-		links: [
-			{
-				rel: 'stylesheet',
-				href: appCss,
-			},
-		],
 	}),
 
 	component: () => (
 		<RootDocument>
-			<Header />
 			<Outlet />
 			<TanStackRouterDevtools />
 		</RootDocument>

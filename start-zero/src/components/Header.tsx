@@ -1,40 +1,65 @@
 import { Link } from '@tanstack/react-router'
+import { User } from 'lucide-react'
+import { Button } from './ui/button'
 
-export default function Header() {
+interface HeaderProps {
+	location?: 'homepage' | 'auth' | 'app'
+}
+
+export default function Header({ location = 'homepage' }: HeaderProps) {
 	return (
-		<header className='p-2 flex gap-2 bg-white text-black justify-between'>
-			<nav className='flex flex-row'>
-				<div className='px-2 font-bold'>
-					<Link to='/'>Home</Link>
-				</div>
-				{/* <div className='px-2 font-bold'>
-					<Link to='/app'>Zero App</Link>
-				</div> */}
+		<>
+			{location === 'homepage' && <HomePageHeader />}
+			{location === 'auth' && <AuthPageHeader />}
+			{location === 'app' && <AppPageHeader />}
+		</>
+	)
+}
 
-				<div className='px-2 font-bold'>
-					<Link to='/demo/form/simple'>Simple Form</Link>
-				</div>
-
-				<div className='px-2 font-bold'>
-					<Link to='/demo/form/address'>Address Form</Link>
-				</div>
-
-				<div className='px-2 font-bold'>
-					<Link to='/demo/start/server-funcs'>Start - Server Functions</Link>
-				</div>
-				<div className='px-2 font-bold'>
+const HomePageHeader = () => {
+	return (
+		<nav className='w-full py-2 px-4 bg-background flex justify-between items-center border-b border-border text-sm'>
+			<Link className='font-bold flex items-center gap-2' to='/'>
+				{/* <Binary className='w-6 h-6' /> */}
+				Zero Start
+			</Link>
+			<div className='flex gap-4 items-center'>
+				<a
+					href='https://github.com/lklyne/zero-start'
+					target='_blank'
+					rel='noopener noreferrer'
+					className=''
+				>
+					Github
+				</a>
+				<Button>
 					<Link to='/auth/login'>Login</Link>
-				</div>
-				<div className='px-2 font-bold'>
-					<Link to='/auth/signup'>Signup</Link>
-				</div>
-				<div className='px-2 font-bold'>
-					<Link to='/auth/account'>Account</Link>
-				</div>
-				<div className='px-2 font-bold'>
-					<Link to='/app'>Authed App</Link>
-				</div>
-			</nav>
-		</header>
+				</Button>
+			</div>
+		</nav>
+	)
+}
+
+const AuthPageHeader = () => {
+	return (
+		<nav className='w-full py-4 px-4 bg-background flex justify-between items-center border-b border-border text-sm'>
+			<Link className='font-bold flex items-center gap-2' to='/'>
+				{/* <Binary className='w-6 h-6' /> */}
+				Zero Start
+			</Link>
+		</nav>
+	)
+}
+
+const AppPageHeader = () => {
+	return (
+		<nav className='w-full py-4 px-4 bg-background flex justify-between items-center border-b border-border text-sm'>
+			<Link className='font-bold flex items-center gap-2' to='/'>
+				Zero App
+			</Link>
+			<div className='flex gap-4 items-center'>
+				<User className='w-4 h-4' />
+			</div>
+		</nav>
 	)
 }

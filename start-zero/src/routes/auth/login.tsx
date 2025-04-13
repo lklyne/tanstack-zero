@@ -1,14 +1,15 @@
+import Header from '@/components/Header'
 import { LoginForm } from '@/components/login-form'
 import { createFileRoute } from '@tanstack/react-router'
-
 export const Route = createFileRoute('/auth/login')({
 	component: RouteComponent,
 })
 
 function RouteComponent() {
 	return (
-		<div className='flex flex-col flex-grow h-full w-full items-center justify-center p-4'>
-			<div className='w-full max-w-md'>
+		<div className='flex flex-col flex-grow h-screen w-full items-center justify-center'>
+			<Header location='auth' />
+			<div className='w-full h-full flex flex-col items-center justify-center max-w-md'>
 				<LoginForm />
 			</div>
 		</div>

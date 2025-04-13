@@ -1,3 +1,4 @@
+import Header from '@/components/Header'
 import { Button } from '@/components/ui/button'
 import { useZero } from '@/lib/zero'
 import { faker } from '@faker-js/faker'
@@ -32,7 +33,6 @@ function RouteComponent() {
 
 	return (
 		<div>
-			Hello "/app/"!
 			<div>
 				<h3>Session Data:</h3>
 				<pre className='text-xs text-left'>

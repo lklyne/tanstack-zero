@@ -10,6 +10,7 @@ export const authClient = createAuthClient({
 export const signInWithGoogle = async () => {
 	const data = await authClient.signIn.social({
 		provider: 'google',
+		callbackURL: '/app', // Add redirect URL here
 	})
 
 	return data

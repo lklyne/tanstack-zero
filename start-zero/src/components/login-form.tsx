@@ -49,12 +49,13 @@ export function LoginForm({
 			const { data, error } = await signIn.email({
 				email: values.email,
 				password: values.password,
+				callbackURL: '/app',
 			})
 
 			if (data) {
 				// Assuming successful login redirects or indicates success via status
 				// Redirect to dashboard or home page after successful login
-				navigate({ to: '/' })
+				// navigate({ to: '/' })
 			} else {
 				// Handle login failure - attempt to parse error message if available
 				let errorMessage = 'Invalid email or password'
@@ -97,7 +98,7 @@ export function LoginForm({
 	}
 
 	return (
-		<div className={cn('flex flex-col gap-6', className)} {...props}>
+		<div className={cn('flex w-full flex-col gap-6', className)} {...props}>
 			<Card>
 				<CardHeader>
 					<CardTitle className='text-2xl'>Login</CardTitle>
@@ -152,7 +153,7 @@ export function LoginForm({
 								Login
 							</Button>
 
-							<div className='mt-4 text-center text-sm'>
+							<div className='text-center text-sm py-4'>
 								Don&apos;t have an account?{' '}
 								<Link
 									to='/auth/signup'
