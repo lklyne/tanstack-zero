@@ -12,8 +12,8 @@ import { createZeroSchema } from 'drizzle-zero'
 import * as drizzleSchema from './schema'
 
 // Define AuthData type explicitly
-interface AuthData {
-	sub: string // assuming sub is the user identifier
+export interface AuthData {
+	sub: string | null // null for unauthenticated sessions
 	// Add other authentication-related fields as needed
 }
 

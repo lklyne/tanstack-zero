@@ -26,9 +26,7 @@ src/
 ```ts
 // src/mutators/shared.ts
 import type { CustomMutatorDefs, CustomMutatorImpl } from '@rocicorp/zero/pg'
-import { schema } from '@/db/schema.zero'
-
-export type AuthData = { sub: string | null }
+import { schema, type AuthData } from '@/db/schema.zero'
 
 /**
  * Define client‐side mutators (optimistic updates + permissions).
@@ -57,9 +55,8 @@ export function createMutators(
 
 ```ts
 // src/mutators/server.ts
-import { createMutators, AuthData } from './shared'
-import type { CustomMutatorDefs } from '@rocicorp/zero/pg'
-import { schema } from '@/db/schema.zero'
+import { createMutators } from './shared'
+import { type AuthData } from '@/db/schema.zero'
 
 /**
  * Wrap client mutators, adding any server‑only logic or postCommitTasks.
@@ -186,21 +183,13 @@ function parseSub(jwt: string): string | null {
 
 ## 4. Smoke‑Test End‑to‑End
 
-1. **Start Zero‑cache** (in a separate terminal)
-   ```bash
-   npm run zero-cache
-   ```
-2. **Start your dev server**
-   ```bash
-   npm run dev
-   ```
-3. In your UI (e.g. `/` or `/authed/app`), call a mutator, e.g.
+1. In your UI (e.g. `/` or `/authed/app`), call a mutator, e.g.
    ```ts
    zero.mutate.persons.insert({ id: crypto.randomUUID(), name: 'Alice' })
    ```
-4. **Open Network Panel** → watch the POST to `/api/push`
-5. **Verify** the row appears in your Postgres `persons` table
-6. Try a `delete` mutator and confirm the row is removed
+2. Open Network Panel → watch the POST to `/api/push`
+3. Verify the row appears in your Postgres `persons` table
+4. Try a `delete` mutator and confirm the row is removed
 
 ---
 
@@ -212,4 +201,4 @@ function parseSub(jwt: string): string | null {
 
 ---
 
-🎉 You’re all set! Follow these steps sequentially, checking off each section as you confirm it works. Happy coding!
+🎉 You're all set! Follow these steps sequentially, checking off each section as you confirm it works. Happy coding!
