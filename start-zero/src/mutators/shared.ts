@@ -1,4 +1,4 @@
-import { type AuthData, schema } from '@/db/schema.zero'
+import type { AuthData, ZeroSchema } from '@/db/schema.zero'
 import type { CustomMutatorDefs } from '@rocicorp/zero/pg'
 
 /**
@@ -6,7 +6,7 @@ import type { CustomMutatorDefs } from '@rocicorp/zero/pg'
  */
 export function createMutators(
 	authData: AuthData,
-): CustomMutatorDefs<typeof schema, unknown> {
+): CustomMutatorDefs<ZeroSchema, unknown> {
 	return {
 		persons: {
 			async insert(tx, args: { id: string; name: string }) {
@@ -17,6 +17,14 @@ export function createMutators(
 			async delete(tx, args: { id: string }) {
 				if (!authData.sub) throw new Error('Not authenticated')
 				await tx.mutate.persons.delete(args)
+			},
+		},
+		users: {
+			async create(tx, u: { id: string; email: string; name: string }) {
+				if (!authData.sub) throw new Error('Not authenticated')
+				// Check if user already exists
+				if (await tx.query.users.where('id', u.id).one().run()) return
+				await tx.mutate.users.insert(u)
 			},
 		},
 	}

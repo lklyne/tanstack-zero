@@ -1,4 +1,4 @@
-import { type AuthData, schema } from '@/db/schema.zero'
+import type { AuthData, ZeroSchema } from '@/db/schema.zero'
 import type { CustomMutatorDefs } from '@rocicorp/zero/pg'
 import { createMutators } from './shared'
 
@@ -7,7 +7,7 @@ import { createMutators } from './shared'
  */
 export function createServerMutators(
 	authData: AuthData,
-): CustomMutatorDefs<typeof schema, unknown> {
+): CustomMutatorDefs<ZeroSchema, unknown> {
 	const clientMutators = createMutators(authData)
 	return {
 		...clientMutators,
@@ -16,7 +16,9 @@ export function createServerMutators(
 			...clientMutators.persons,
 			// e.g. add audit logging inside the same transaction
 			async insert(tx, args) {
-				await clientMutators.persons!.insert!(tx, args)
+				if (!clientMutators.persons?.insert)
+					throw new Error('Missing insert mutator')
+				await clientMutators.persons.insert(tx, args)
 				// server-side-only: await tx.mutate.auditLog.insert({ ... })
 			},
 		},

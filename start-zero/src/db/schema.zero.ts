@@ -28,6 +28,11 @@ export const zeroSchema = createZeroSchema(drizzleSchema, {
 			id: true,
 			name: true,
 		},
+		users: {
+			id: true,
+			email: true,
+			name: true,
+		},
 	},
 })
 
@@ -38,8 +43,9 @@ export const schema = zeroSchema
 export type ZeroSchema = typeof zeroSchema
 
 export type Person = Row<typeof zeroSchema.tables.persons>
+export type User = Row<typeof zeroSchema.tables.users>
 export type InsertPerson = InsertValue<typeof zeroSchema.tables.persons>
-
+export type InsertUser = InsertValue<typeof zeroSchema.tables.users>
 export const permissions = definePermissions<AuthData, ZeroSchema>(
 	zeroSchema,
 	() => {
@@ -48,12 +54,24 @@ export const permissions = definePermissions<AuthData, ZeroSchema>(
 			{ cmpLit }: ExpressionBuilder<ZeroSchema, 'persons'>,
 		) => cmpLit(authData.sub, 'IS NOT', null)
 
+		const allowIfSelf = (
+			authData: AuthData,
+			{ cmp }: ExpressionBuilder<ZeroSchema, 'users'>,
+		) => cmp('id', authData.sub as string)
+
 		return {
 			persons: {
 				row: {
 					select: ANYONE_CAN,
 					insert: ANYONE_CAN,
 					delete: [allowIfLoggedIn],
+				},
+			},
+			users: {
+				row: {
+					select: ANYONE_CAN,
+					insert: ANYONE_CAN,
+					delete: [allowIfSelf],
 				},
 			},
 		} satisfies PermissionsConfig<AuthData, ZeroSchema>

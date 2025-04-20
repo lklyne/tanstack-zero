@@ -1,8 +1,10 @@
 import { authDb } from '@/db/auth-db'
 import * as authSchema from '@/db/auth-schema'
+import { syncUserToZero } from '@/lib/sync-user-to-zero'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { jwt } from 'better-auth/plugins'
+import { createAuthMiddleware } from 'better-auth/plugins'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -54,5 +56,21 @@ export const auth = betterAuth({
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
 			callbackUrl: '/app',
 		},
+	},
+
+	hooks: {
+		after: createAuthMiddleware(async (ctx) => {
+			// console.log('🔥 after‐hook fired, ctx.path=', ctx.path)
+			// Runs for *all* auth endpoints
+			if (
+				ctx.path.startsWith('/sign-up') ||
+				ctx.path.startsWith('/sign-in') ||
+				ctx.path.startsWith('/callback')
+			) {
+				console.log('🔥 after‐hook fired, ctx.path=', ctx.path)
+				const u = ctx.context.newSession?.user
+				if (u) await syncUserToZero(u) // fire-and-forget
+			}
+		}),
 	},
 })

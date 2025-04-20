@@ -6,7 +6,6 @@ import type { AuthData } from '@/db/schema.zero'
 import { signOut } from '@/lib/auth-client'
 import { createMutators } from '@/mutators/shared'
 import { Zero } from '@rocicorp/zero'
-import type { ZeroOptions } from '@rocicorp/zero'
 
 export const useZero = _useZero<typeof schema>
 
