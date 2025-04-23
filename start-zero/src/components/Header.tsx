@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { User } from 'lucide-react'
+import { NavUser } from './nav-user'
 import { Button } from './ui/button'
 
 interface HeaderProps {
@@ -32,9 +32,9 @@ const HomePageHeader = () => {
 				>
 					Github
 				</a>
-				<Button>
-					<Link to='/auth/login'>Login</Link>
-				</Button>
+				<Link to='/auth/login'>
+					<Button>Login</Button>
+				</Link>
 			</div>
 		</nav>
 	)
@@ -58,7 +58,7 @@ const AppPageHeader = () => {
 				Zero App
 			</Link>
 			<div className='flex gap-4 items-center'>
-				<User className='w-4 h-4' />
+				<NavUser />
 			</div>
 		</nav>
 	)

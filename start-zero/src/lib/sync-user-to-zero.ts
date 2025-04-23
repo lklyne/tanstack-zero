@@ -1,4 +1,3 @@
-import type { AuthData } from '@/db/schema.zero'
 import type { User } from 'better-auth/types' // adjust path if different
 import postgres from 'postgres'
 

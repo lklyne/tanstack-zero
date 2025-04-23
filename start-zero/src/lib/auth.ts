@@ -38,11 +38,13 @@ export const auth = betterAuth({
 		provider: 'pg',
 	}),
 
-	plugins: [jwt()],
-
-	serverConfig: {
-		origin,
-	},
+	plugins: [
+		jwt({
+			jwt: {
+				expirationTime: '1w',
+			},
+		}),
+	],
 
 	emailAndPassword: {
 		enabled: true,
@@ -54,7 +56,6 @@ export const auth = betterAuth({
 		google: {
 			clientId: process.env.GOOGLE_CLIENT_ID as string,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-			callbackUrl: '/app',
 		},
 	},
 

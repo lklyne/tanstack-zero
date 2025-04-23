@@ -1,7 +1,11 @@
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { useForm } from '@tanstack/react-form'
 import { createFileRoute } from '@tanstack/react-router'
+import { zodValidator } from '@tanstack/zod-form-adapter'
 import { z } from 'zod'
-
-import { useAppForm } from '@/hooks/demo.form'
 
 export const Route = createFileRoute('/_authed/app/_layout/simple-form')({
 	component: SimpleForm,
@@ -12,31 +16,28 @@ const schema = z.object({
 	description: z.string().min(1, 'Description is required'),
 })
 
+function FieldError({ error }: { error?: string }) {
+	return error ? <p className='text-red-500 text-sm mt-1'>{error}</p> : null
+}
+
 function SimpleForm() {
-	const form = useAppForm({
+	const form = useForm({
 		defaultValues: {
 			title: '',
 			description: '',
 		},
 		validators: {
-			onBlur: schema,
+			onChange: schema,
 		},
 		onSubmit: ({ value }: { value: z.infer<typeof schema> }) => {
 			console.log(value)
-			// Show success message
 			alert('Form submitted successfully!')
 		},
 	})
 
 	return (
-		<div
-			className='flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-4 text-white'
-			style={{
-				backgroundImage:
-					'radial-gradient(50% 50% at 5% 40%, #add8e6 0%, #0000ff 70%, #00008b 100%)',
-			}}
-		>
-			<div className='w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10'>
+		<div className='flex items-center justify-center min-h-screen bg-background text-foreground p-4'>
+			<div className='w-full max-w-2xl p-6 rounded-lg border bg-card text-card-foreground shadow-sm'>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault()
@@ -45,20 +46,49 @@ function SimpleForm() {
 					}}
 					className='space-y-6'
 				>
-					<form.AppField
+					<form.Field
 						name='title'
-						children={(field) => <field.TextField label='Title' />}
+						children={(field) => (
+							<div className='space-y-1'>
+								<Label htmlFor={field.name}>Title</Label>
+								<Input
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+								<FieldError error={field.state.meta.errors.join(', ')} />
+							</div>
+						)}
 					/>
 
-					<form.AppField
+					<form.Field
 						name='description'
-						children={(field) => <field.TextArea label='Description' />}
+						children={(field) => (
+							<div className='space-y-1'>
+								<Label htmlFor={field.name}>Description</Label>
+								<Textarea
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+								<FieldError error={field.state.meta.errors.join(', ')} />
+							</div>
+						)}
 					/>
 
 					<div className='flex justify-end'>
-						<form.AppForm>
-							<form.SubscribeButton label='Submit' />
-						</form.AppForm>
+						<form.Subscribe
+							selector={(state) => [state.canSubmit, state.isSubmitting]}
+							children={([canSubmit, isSubmitting]) => (
+								<Button type='submit' disabled={!canSubmit || isSubmitting}>
+									{isSubmitting ? 'Submitting...' : 'Submit'}
+								</Button>
+							)}
+						/>
 					</div>
 				</form>
 			</div>

@@ -1,12 +1,27 @@
-import { useAppForm } from '@/hooks/demo.form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useForm } from '@tanstack/react-form'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authed/app/_layout/address-form')({
 	component: AddressForm,
 })
 
+function FieldError({ error }: { error?: string }) {
+	return error ? <p className='text-red-500 text-sm mt-1'>{error}</p> : null
+}
+
 function AddressForm() {
-	const form = useAppForm({
+	const form = useForm({
 		defaultValues: {
 			fullName: '',
 			email: '',
@@ -20,34 +35,23 @@ function AddressForm() {
 			phone: '',
 		},
 		validators: {
-			onBlur: ({ value }) => {
-				const errors = {
-					fields: {},
-				} as {
-					fields: Record<string, string>
-				}
+			onChangeAsyncDebounceMs: 500,
+			onChange: ({ value }) => {
 				if (value.fullName.trim().length === 0) {
-					errors.fields.fullName = 'Full name is required'
+					// You might return general form errors here if needed
 				}
-				return errors
+				return undefined
 			},
 		},
 		onSubmit: ({ value }) => {
 			console.log(value)
-			// Show success message
 			alert('Form submitted successfully!')
 		},
 	})
 
 	return (
-		<div
-			className='flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-4 text-white'
-			style={{
-				backgroundImage:
-					'radial-gradient(50% 50% at 5% 40%, #f4a460 0%, #8b4513 70%, #1a0f0a 100%)',
-			}}
-		>
-			<div className='w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10'>
+		<div className='flex items-center justify-center min-h-screen bg-background text-foreground p-4'>
+			<div className='w-full max-w-2xl p-6 rounded-lg border bg-card text-card-foreground shadow-sm'>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault()
@@ -56,15 +60,33 @@ function AddressForm() {
 					}}
 					className='space-y-6'
 				>
-					<form.AppField
+					<form.Field
 						name='fullName'
-						children={(field) => <field.TextField label='Full Name' />}
+						validators={{
+							onChange: ({ value }) =>
+								!value || value.trim().length === 0
+									? 'Full name is required'
+									: undefined,
+						}}
+						children={(field) => (
+							<div className='space-y-1'>
+								<Label htmlFor={field.name}>Full Name</Label>
+								<Input
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+								<FieldError error={field.state.meta.errors.join(', ')} />
+							</div>
+						)}
 					/>
 
-					<form.AppField
+					<form.Field
 						name='email'
 						validators={{
-							onBlur: ({ value }) => {
+							onChange: ({ value }) => {
 								if (!value || value.trim().length === 0) {
 									return 'Email is required'
 								}
@@ -74,51 +96,100 @@ function AddressForm() {
 								return undefined
 							},
 						}}
-						children={(field) => <field.TextField label='Email' />}
+						children={(field) => (
+							<div className='space-y-1'>
+								<Label htmlFor={field.name}>Email</Label>
+								<Input
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									type='email'
+								/>
+								<FieldError error={field.state.meta.errors.join(', ')} />
+							</div>
+						)}
 					/>
 
-					<form.AppField
+					<form.Field
 						name='address.street'
 						validators={{
-							onBlur: ({ value }) => {
+							onChange: ({ value }) => {
 								if (!value || value.trim().length === 0) {
 									return 'Street address is required'
 								}
 								return undefined
 							},
 						}}
-						children={(field) => <field.TextField label='Street Address' />}
+						children={(field) => (
+							<div className='space-y-1'>
+								<Label htmlFor={field.name}>Street Address</Label>
+								<Input
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+								<FieldError error={field.state.meta.errors.join(', ')} />
+							</div>
+						)}
 					/>
 
 					<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-						<form.AppField
+						<form.Field
 							name='address.city'
 							validators={{
-								onBlur: ({ value }) => {
+								onChange: ({ value }) => {
 									if (!value || value.trim().length === 0) {
 										return 'City is required'
 									}
 									return undefined
 								},
 							}}
-							children={(field) => <field.TextField label='City' />}
+							children={(field) => (
+								<div className='space-y-1'>
+									<Label htmlFor={field.name}>City</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									<FieldError error={field.state.meta.errors.join(', ')} />
+								</div>
+							)}
 						/>
-						<form.AppField
+						<form.Field
 							name='address.state'
 							validators={{
-								onBlur: ({ value }) => {
+								onChange: ({ value }) => {
 									if (!value || value.trim().length === 0) {
 										return 'State is required'
 									}
 									return undefined
 								},
 							}}
-							children={(field) => <field.TextField label='State' />}
+							children={(field) => (
+								<div className='space-y-1'>
+									<Label htmlFor={field.name}>State</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									<FieldError error={field.state.meta.errors.join(', ')} />
+								</div>
+							)}
 						/>
-						<form.AppField
+						<form.Field
 							name='address.zipCode'
 							validators={{
-								onBlur: ({ value }) => {
+								onChange: ({ value }) => {
 									if (!value || value.trim().length === 0) {
 										return 'Zip code is required'
 									}
@@ -128,14 +199,26 @@ function AddressForm() {
 									return undefined
 								},
 							}}
-							children={(field) => <field.TextField label='Zip Code' />}
+							children={(field) => (
+								<div className='space-y-1'>
+									<Label htmlFor={field.name}>Zip Code</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									<FieldError error={field.state.meta.errors.join(', ')} />
+								</div>
+							)}
 						/>
 					</div>
 
-					<form.AppField
+					<form.Field
 						name='address.country'
 						validators={{
-							onBlur: ({ value }) => {
+							onChange: ({ value }) => {
 								if (!value || value.trim().length === 0) {
 									return 'Country is required'
 								}
@@ -143,45 +226,70 @@ function AddressForm() {
 							},
 						}}
 						children={(field) => (
-							<field.Select label='Country'>
-								<option value=''>Select a country</option>
-								<option value='US'>United States</option>
-								<option value='CA'>Canada</option>
-								<option value='UK'>United Kingdom</option>
-								<option value='AU'>Australia</option>
-								<option value='DE'>Germany</option>
-								<option value='FR'>France</option>
-								<option value='JP'>Japan</option>
-							</field.Select>
+							<div className='space-y-1'>
+								<Label htmlFor={field.name}>Country</Label>
+								<Select
+									value={field.state.value}
+									onValueChange={(value) => field.handleChange(value)}
+									name={field.name}
+								>
+									<SelectTrigger id={field.name} className='w-full'>
+										<SelectValue placeholder='Select a country' />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value='US'>United States</SelectItem>
+										<SelectItem value='CA'>Canada</SelectItem>
+										<SelectItem value='UK'>United Kingdom</SelectItem>
+										<SelectItem value='AU'>Australia</SelectItem>
+										<SelectItem value='DE'>Germany</SelectItem>
+										<SelectItem value='FR'>France</SelectItem>
+										<SelectItem value='JP'>Japan</SelectItem>
+									</SelectContent>
+								</Select>
+								<FieldError error={field.state.meta.errors.join(', ')} />
+							</div>
 						)}
 					/>
 
-					<form.AppField
+					<form.Field
 						name='phone'
 						validators={{
-							onBlur: ({ value }) => {
+							onChange: ({ value }) => {
 								if (!value || value.trim().length === 0) {
 									return 'Phone number is required'
 								}
-								if (
-									!/^(\+\d{1,3})?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(
-										value,
-									)
-								) {
-									return 'Invalid phone number format'
+								if (!/^\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value)) {
+									return 'Invalid phone number format (e.g., 123-456-7890)'
 								}
 								return undefined
 							},
 						}}
 						children={(field) => (
-							<field.TextField label='Phone' placeholder='123-456-7890' />
+							<div className='space-y-1'>
+								<Label htmlFor={field.name}>Phone</Label>
+								<Input
+									id={field.name}
+									name={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									placeholder='123-456-7890'
+									type='tel'
+								/>
+								<FieldError error={field.state.meta.errors.join(', ')} />
+							</div>
 						)}
 					/>
 
 					<div className='flex justify-end'>
-						<form.AppForm>
-							<form.SubscribeButton label='Submit' />
-						</form.AppForm>
+						<form.Subscribe
+							selector={(state) => [state.canSubmit, state.isSubmitting]}
+							children={([canSubmit, isSubmitting]) => (
+								<Button type='submit' disabled={!canSubmit || isSubmitting}>
+									{isSubmitting ? 'Submitting...' : 'Submit'}
+								</Button>
+							)}
+						/>
 					</div>
 				</form>
 			</div>

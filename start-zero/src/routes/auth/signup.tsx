@@ -1,4 +1,4 @@
-import Header from '@/components/Header'
+import Header from '@/components/header'
 import { SignUp } from '@/components/sign-up'
 import { createFileRoute } from '@tanstack/react-router'
 
