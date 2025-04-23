@@ -2,9 +2,9 @@ import { Button } from '@/components/ui/button'
 import { useZero } from '@/lib/zero'
 import { faker } from '@faker-js/faker'
 import { useQuery } from '@rocicorp/zero/react'
-import { createFileRoute, useRouteContext } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_authed/app/')({
+export const Route = createFileRoute('/_authed/app/_layout/')({
 	component: RouteComponent,
 	loader: async ({ context }) => {
 		// Log the session from the root context
@@ -33,18 +33,10 @@ function PersonList() {
 function RouteComponent() {
 	const z = useZero()
 	const [persons] = useQuery(z.query.persons)
-	const { session } = useRouteContext({ from: '__root__' })
 
 	return (
 		<div className='container mx-auto p-8 space-y-8'>
-			<div className='rounded-lg bg-secondary/50 p-4'>
-				<h3 className='font-semibold mb-2'>Session Data:</h3>
-				<pre className='text-xs text-left'>
-					{JSON.stringify(session, null, 2)}
-				</pre>
-			</div>
-
-			<div className='flex flex-col items-center gap-4'>
+			<div className='flex flex-col gap-4'>
 				<h2 className='text-2xl font-bold'>Test Zero Mutators</h2>
 				<div className='flex gap-2'>
 					<Button

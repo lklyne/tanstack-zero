@@ -85,7 +85,7 @@ export const APIRoute = createAPIFileRoute('/api/push')({
 			)
 		}
 	},
-	OPTIONS: async ({ request }) => {
+	OPTIONS: async () => {
 		// Handle CORS preflight requests
 		return new Response(null, {
 			headers: {

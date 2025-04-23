@@ -137,9 +137,9 @@ const LandingPage = () => {
 						Featuring
 					</p>
 					<div className='flex flex-wrap gap-12 justify-center'>
-						{partners.map((partner, index) => (
+						{partners.map((partner) => (
 							<PartnerLogo
-								key={index}
+								key={partner.name}
 								name={partner.name}
 								// logo={partner.logo}
 								url={partner.url}

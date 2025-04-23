@@ -1,4 +1,6 @@
+import { DefaultCatchBoundary } from '@/components/default-catch-boundry'
 import type { initZero } from '@/lib/zero'
+import type { ErrorComponentProps } from '@tanstack/react-router'
 import {
 	HeadContent,
 	Outlet,
@@ -13,31 +15,6 @@ import appCss from '@/styles.css?url'
 // Import the server function from its dedicated file
 import { fetchAuthSession } from '@/lib/session.server'
 import type { Session } from 'better-auth' // Restore Session type import
-
-// // Define the server function to fetch the session
-// const fetchAuthSession = createServerFn({ method: 'GET' }).handler(async () => {
-// 	const request = getWebRequest()
-// 	if (!request) {
-// 		// Handle case where request context might not be available
-// 		// This shouldn't happen in typical TanStack Start server-side rendering flow
-// 		console.error(
-// 			'Server request context not found when fetching auth session.',
-// 		)
-// 		return { session: null }
-// 	}
-
-// 	try {
-// 		// Fetch session using headers from the request
-// 		const session = await auth.api.getSession({
-// 			headers: request.headers,
-// 		})
-// 		return { session }
-// 	} catch (error) {
-// 		// Log error and return null session
-// 		console.error('Failed to fetch auth session:', error)
-// 		return { session: null }
-// 	}
-// })
 
 // Update the router context to include the session
 interface MyRouterContext {
@@ -72,6 +49,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				href: appCss,
 			},
 		],
+		errorComponent: (props: ErrorComponentProps) => {
+			return (
+				<RootDocument>
+					<DefaultCatchBoundary {...props} />
+				</RootDocument>
+			)
+		},
 	}),
 
 	component: () => (

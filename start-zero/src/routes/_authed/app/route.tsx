@@ -1,5 +1,7 @@
 import Header from '@/components/Header'
+import type { ZeroSchema } from '@/db/schema.zero'
 import { initZero } from '@/lib/zero'
+import type { Zero } from '@rocicorp/zero'
 import { ZeroProvider } from '@rocicorp/zero/react'
 import {
 	Outlet,
@@ -29,7 +31,7 @@ function RouteComponent() {
 		return <div>Loading Zero...</div>
 	}
 
-	const z = use(zeroPromise)
+	const z = use(zeroPromise) as unknown as Zero<ZeroSchema>
 
 	return (
 		<ZeroProvider zero={z}>
@@ -41,17 +43,15 @@ function RouteComponent() {
 							<Link to='/app'>Authed App</Link>
 						</div>
 						<div className='px-2 font-bold'>
-							<Link to='/demo/form/simple'>Simple Form</Link>
+							<Link to='/app/simple-form'>Simple Form</Link>
 						</div>
 
 						<div className='px-2 font-bold'>
-							<Link to='/demo/form/address'>Address Form</Link>
+							<Link to='/app/address-form'>Address Form</Link>
 						</div>
 
 						<div className='px-2 font-bold'>
-							<Link to='/demo/start/server-funcs'>
-								Start - Server Functions
-							</Link>
+							<Link to='/app/server-functions'>Server Functions</Link>
 						</div>
 						<div className='px-2 font-bold'>
 							<Link to='/auth/login'>Login</Link>
