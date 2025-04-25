@@ -1,11 +1,10 @@
 'use client'
 
 import {
-	BellIcon,
 	BugIcon,
 	CreditCardIcon,
 	LogOutIcon,
-	MoreVerticalIcon,
+	// MoreVerticalIcon,
 	UserCircleIcon,
 } from 'lucide-react'
 
@@ -22,6 +21,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { authClient } from '@/lib/auth-client'
 import { useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
+import { AccountDebug } from './account-debug'
 
 export function NavUser() {
 	const { data: session, isPending } = authClient.useSession()
@@ -40,15 +41,19 @@ export function NavUser() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button size='lg' variant='outline' className='py-6'>
-					<Avatar className='h-8 w-8 rounded-lg grayscale'>
+				<Button
+					size='icon'
+					variant='outline'
+					className='h-6 w-6 rounded-md p-0'
+				>
+					<Avatar className='h-6 w-6 rounded-sm text-sm'>
 						<AvatarImage src={user.image || ''} alt={user.name || ''} />
-						<AvatarFallback className='rounded-lg'>
+						<AvatarFallback className='rounded-md'>
 							{user.name?.slice(0, 2)?.toUpperCase() || 'UN'}
 						</AvatarFallback>
 					</Avatar>
 
-					<div className='grid flex-1 text-left text-sm leading-tight'>
+					{/* <div className='grid flex-1 text-left text-sm leading-tight'>
 						<span className='truncate font-medium'>
 							{user.name || 'Unknown'}
 						</span>
@@ -56,7 +61,7 @@ export function NavUser() {
 							{user.email}
 						</span>
 					</div>
-					<MoreVerticalIcon className='ml-auto size-4' />
+					<MoreVerticalIcon className='ml-auto size-4' /> */}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
@@ -92,10 +97,13 @@ export function NavUser() {
 						<CreditCardIcon className='mr-2 h-4 w-4' />
 						Billing
 					</DropdownMenuItem>
-					<DropdownMenuItem>
-						<BugIcon className='mr-2 h-4 w-4' />
-						Debug
-					</DropdownMenuItem>
+
+					<Link to='/app/account-debug'>
+						<DropdownMenuItem>
+							<BugIcon className='mr-2 h-4 w-4' />
+							Debug
+						</DropdownMenuItem>
+					</Link>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem onClick={handleSignout}>

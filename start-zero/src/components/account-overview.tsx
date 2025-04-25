@@ -1,87 +1,21 @@
+import type { ZeroSchema } from '@/db/schema.zero'
 import { authClient, signOut } from '@/lib/auth-client'
-import { Loader2 } from 'lucide-react' // Assuming this might be needed later
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery, useZero } from '@rocicorp/zero/react'
+import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from './ui/button'
-// import { useQuery, useZero } from '@rocicorp/zero/react'
-// import { Schema } from '@/lib/zero/schema'
-
-// Helper function to decode Base64Url
-function base64UrlDecode(inputStr: string): string {
-	// Replace Base64Url specific characters
-	let base64 = inputStr.replace(/-/g, '+').replace(/_/g, '/')
-	// Pad string with '=' to make it valid Base64
-	while (base64.length % 4) {
-		base64 += '='
-	}
-	try {
-		return atob(base64)
-	} catch (e) {
-		console.error('Base64Url decode failed:', e)
-		return ''
-	}
-}
 
 const AccountOverview = () => {
 	const { data, isPending, error } = authClient.useSession()
-	const [jwt, setJwt] = useState<string | null>(null)
-	const [decodedPayload, setDecodedPayload] = useState<object | null>(null)
 	// Placeholder state for subscription loading, adapt as needed
 	const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
-	// const z = useZero<Schema>()
+	const z = useZero<ZeroSchema>()
 
-	const fetchToken = useCallback(async () => {
-		try {
-			const response = await fetch('/api/auth/token')
-			// Log all headers for debugging
-			console.log('Response headers:', [...response.headers.entries()])
+	const [zeroUser] = useQuery(
+		z.query.users.where('id', data?.user?.id || '').one(),
+	)
 
-			// Prefer getting JWT from header if available
-			const authJwt = response.headers.get('set-auth-jwt')
-			if (authJwt) {
-				console.log('Found JWT in headers:', authJwt)
-				setJwt(authJwt)
-			} else {
-				// Fallback to response body if not in header
-				const tokenData = await response.json()
-				console.log('Token response data:', tokenData)
-				if (tokenData.token) {
-					setJwt(tokenData.token)
-				} else {
-					setJwt(null) // Clear JWT if not found
-				}
-			}
-		} catch (err) {
-			console.error('Error fetching JWT:', err)
-			setJwt(null) // Clear JWT on error
-		}
-	}, [])
-
-	useEffect(() => {
-		if (data) {
-			console.log('Session Data:', data)
-			fetchToken() // Fetch initial token when session loads
-		}
-	}, [data, fetchToken])
-
-	// Decode JWT when it changes
-	useEffect(() => {
-		if (jwt) {
-			try {
-				const payloadBase64Url = jwt.split('.')[1]
-				if (payloadBase64Url) {
-					const decodedJson = base64UrlDecode(payloadBase64Url)
-					setDecodedPayload(JSON.parse(decodedJson))
-				} else {
-					setDecodedPayload(null)
-				}
-			} catch (err) {
-				console.error('Error decoding JWT payload:', err)
-				setDecodedPayload({ error: 'Failed to decode payload' })
-			}
-		} else {
-			setDecodedPayload(null)
-		}
-	}, [jwt])
+	console.log('zeroUser', zeroUser)
 
 	// Placeholder functions, adapt as needed
 	const refetchSubscription = () => {
@@ -110,12 +44,30 @@ const AccountOverview = () => {
 	}
 
 	return (
-		<div className='space-y-6'>
-			<div className='pt-12'>
+		<div className='space-y-6 max-w-5xl mx-auto min-h-screen'>
+			<div className='pt-12 w-full'>
 				<h1 className='text-2xl font-bold mb-4'>Account</h1>
-				<p className='text-muted-foreground mb-6'>
-					Manage your account settings and preferences.
-				</p>
+				<div className='flex justify-between items-center'>
+					<p className='text-muted-foreground mb-6'>
+						Manage your account settings and preferences.
+					</p>
+					<div className='flex gap-2 justify-between flex-wrap'>
+						<Button
+							variant='outline'
+							onClick={handleLogout}
+							className='w-full sm:w-auto flex-grow sm:flex-grow-0'
+						>
+							Log Out
+						</Button>
+						<Button
+							variant='destructive'
+							onClick={() => deleteUser()}
+							className='w-full sm:w-auto flex-grow sm:flex-grow-0'
+						>
+							Delete Account
+						</Button>
+					</div>
+				</div>
 
 				{isPending && <p>Loading account data...</p>}
 				{error && <p className='text-destructive'>Error: {error.message}</p>}
@@ -124,28 +76,24 @@ const AccountOverview = () => {
 					<div className='space-y-4'>
 						{/* Profile Information - Zero DB Placeholder */}
 						<div className='p-4 border rounded-md'>
-							<h2 className='font-medium mb-4 px-2 py-1 bg-pink-50 text-pink-800 rounded border border-pink-200 dark:bg-pink-950/40 dark:text-pink-50 dark:border-pink-900 inline-block'>
-								Zero (Placeholder)
+							<h2 className='font-medium mb-4 px-2 py-0.5 bg-pink-50/50 text-pink-800 rounded border border-pink-200 dark:bg-pink-950/40 dark:text-pink-50 dark:border-pink-900 inline-block text-sm'>
+								Zero
 							</h2>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<div>
 									<p className='text-sm text-muted-foreground'>Name</p>
-									{/* Replace with Zero data when available */}
-									<p>{data.user.name || 'Not available'}</p>
+									<p>{zeroUser?.name || 'Not available'}</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground'>User ID</p>
-									{/* Replace with Zero data when available */}
-									<p>{'Zero User ID Placeholder'}</p>
+									<p>{zeroUser?.id || 'Not available'}</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground'>Email</p>
-									{/* Replace with Zero data when available */}
-									<p>{data.user.email || 'Not available'}</p>
+									<p>{zeroUser?.email || 'Not available'}</p>
 								</div>
 								<div>
 									<p className='text-sm text-muted-foreground'>Zero DB Plan</p>
-									{/* Replace with Zero data when available */}
 									<p>{'Plan Placeholder'}</p>
 								</div>
 							</div>
@@ -154,7 +102,7 @@ const AccountOverview = () => {
 						{/* Account Actions - Better Auth */}
 						<div className='p-4 border rounded-md space-y-4'>
 							<h2 className='font-medium mb-4'>
-								<span className='px-2 py-1 bg-blue-50 text-blue-800 rounded border border-blue-200 dark:bg-blue-950/40 dark:text-blue-50 dark:border-blue-900 inline-block'>
+								<span className='px-2 py-0.5 bg-blue-50/50 text-blue-800 rounded border border-blue-200 dark:bg-blue-950/40 dark:text-blue-50 dark:border-blue-900 inline-block text-sm'>
 									Better Auth
 								</span>
 							</h2>
@@ -179,53 +127,12 @@ const AccountOverview = () => {
 									<p>{data.user.emailVerified ? 'Yes' : 'No'}</p>
 								</div>
 							</div>
-
-							{/* JWT Info */}
-							<div className='mt-4'>
-								<h3 className='text-lg font-medium mb-2'>JWT Status:</h3>
-								<Button onClick={fetchToken} className='mb-2' variant='outline'>
-									Refresh Token
-								</Button>
-								{jwt && (
-									<div className='mt-2'>
-										<h4 className='text-md font-medium'>Raw JWT:</h4>
-										<pre className='bg-gray-100 p-4 mt-1 rounded overflow-auto max-h-48 text-xs'>
-											{jwt}
-										</pre>
-									</div>
-								)}
-								{decodedPayload && (
-									<div className='mt-4'>
-										<h4 className='text-md font-medium'>Decoded Payload:</h4>
-										<pre className='bg-gray-100 p-4 mt-1 rounded overflow-auto max-h-96 text-sm'>
-											{JSON.stringify(decodedPayload, null, 2)}
-										</pre>
-									</div>
-								)}
-							</div>
-
-							<div className='flex gap-2 w-full justify-between flex-wrap'>
-								<Button
-									variant='outline'
-									onClick={handleLogout}
-									className='w-full sm:w-auto flex-grow sm:flex-grow-0'
-								>
-									Log Out
-								</Button>
-								<Button
-									variant='destructive'
-									onClick={() => deleteUser()}
-									className='w-full sm:w-auto flex-grow sm:flex-grow-0'
-								>
-									Delete Account
-								</Button>
-							</div>
 						</div>
 
 						{/* Subscription - Polar Placeholder */}
 						<div className='p-4 border rounded-md'>
 							<div className='flex justify-between items-center mb-4'>
-								<h2 className='font-medium mb-4 px-2 py-1 bg-green-50 text-green-800 rounded border border-green-200 dark:bg-green-950/40 dark:text-green-50 dark:border-green-900'>
+								<h2 className='font-medium mb-4 px-2 py-0.5 bg-green-50/50 text-green-800 rounded border border-green-200 dark:bg-green-950/40 dark:text-green-50 dark:border-green-900 text-sm'>
 									Polar (Placeholder)
 								</h2>
 								<Button

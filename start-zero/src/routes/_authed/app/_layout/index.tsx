@@ -1,3 +1,4 @@
+import AppNav from '@/components/nav-app'
 import { Button } from '@/components/ui/button'
 import { useZero } from '@/lib/zero'
 import { faker } from '@faker-js/faker'
@@ -35,9 +36,9 @@ function RouteComponent() {
 	const [persons] = useQuery(z.query.persons)
 
 	return (
-		<div className='container mx-auto p-8 space-y-8'>
-			<div className='flex flex-col gap-4'>
-				<h2 className='text-2xl font-bold'>Test Zero Mutators</h2>
+		<div className='container mx-auto space-y-8'>
+			<AppNav title='Zero Mutations' />
+			<div className='flex flex-col gap-4 p-8'>
 				<div className='flex gap-2'>
 					<Button
 						onClick={() =>
