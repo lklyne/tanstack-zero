@@ -1,5 +1,5 @@
 ---
-description: 
+description: Any database mutation, writes, or edits follow these patterns for zero sync
 globs: 
 alwaysApply: false
 ---
@@ -20,7 +20,7 @@ Zero Custom Mutators provide a powerful mechanism for defining data write operat
 ## Architecture
 
 1.  **Client:** Runs the client-side implementation of the mutator instantly. Uses `@rocicorp/zero`.
-2.  **Server:** Our Remix backend executes the server-side implementation of the mutator.
+2.  **Server:** Our TanStack Start backend executes the server-side implementation of the mutator.
 3.  **`zero-cache`:** Orchestrates sync, calls the push endpoint, replicates data changes, and sends updates to clients.
 
 ## Implementing Mutators
@@ -29,7 +29,7 @@ Each custom mutator requires **two implementations**:
 
 1.  **Client Implementation:**
 
-    - Written in TypeScript and defined in `app/mutators/shared`
+    - Written in TypeScript and defined in `src/mutators/shared.ts`
     - Receives a `Transaction` object (`tx`).
     - Uses ZQL via `tx.query` for reads.
     - Uses the CRUD-style API via `tx.mutate` for writes.
@@ -59,7 +59,7 @@ Each custom mutator requires **two implementations**:
     - Runs within your push endpoint against your actual database.
     - Zero provides a `ServerTransaction` interface and helpers (`PushProcessor`, `connectionProvider`) to simplify implementation and potentially reuse client mutator code.
     - The server's result is authoritative. If it throws an error or modifies data differently, the client will eventually reflect the server's state.
-    - Defined in `app/mutators/server`
+    - Defined in `src/mutators/server.ts`
 
     ```typescript
     // Example Server Mutator (TypeScript using ServerTransaction, reusing client logic)
@@ -80,16 +80,13 @@ Each custom mutator requires **two implementations**:
 
 1.  **Define Client Mutators:**
 
-    - Conventionally defined in `mutators/shared/index`. `createMutators` can be extended to support additional mutators. This pattern facilitates passing authentication data for permissions.
+    - Conventionally defined in `src/mutators/shared.ts`. `createMutators` can be extended to support additional mutators. This pattern facilitates passing authentication data for permissions.
 
     ```typescript
-    // mutators/shared/index.ts
-    import { CustomMutatorDefs } from "
-    rocicorp/zero";
-
-    import { schema } from "~/services/zero/schema";
-
-    import { assertIsPartner, AuthData } from "../permissions";
+    // src/mutators/shared.ts
+    import { CustomMutatorDefs } from "@rocicorp/zero";
+    import { schema } from "@/db/schema.zero";
+    import { AuthData } from "@/db/schema.zero";
 
     // Accept auth data for permissions
     export function createMutators(authData: Omit<AuthData, "partnerAbility">) {
@@ -179,12 +176,12 @@ Each custom mutator requires **two implementations**:
 
 - **Server-Specific Code:**
 
-  - **Wrapping:** `mutators/server/index.ts` imports client mutators and wraps them, adding server-only logic (like audit logs, external API calls _after_ transaction). If no specific server logic is required, client mutators can be used directly.
+  - **Wrapping:** `src/mutators/server.ts` imports client mutators and wraps them, adding server-only logic (like audit logs, external API calls _after_ transaction). If no specific server logic is required, client mutators can be used directly.
   - **Conditional Logic:** Use `tx.location === 'server'` inside a shared mutator function (less common - prefer separating client and server logic).
 
   ```typescript
   import { CustomMutatorDefs } from "@rocicorp/zero";
-  import { schema } from "~/services/zero/schema";
+  import { schema } from "@/db/schema.zero";
 
   export function createServerMutators(
     authData: AuthData,
@@ -217,9 +214,12 @@ Each custom mutator requires **two implementations**:
   - Query the database using `tx.query` (ZQL) or raw SQL (`tx.dbTransaction`) to verify user permissions.
   - Where possible, define permissions as reusable functions.
   - Throw an error if the user is not authorized.
+  - Permissions are defined in `src/db/schema.zero.ts` using `definePermissions`.
 
   ```typescript
-  // Inside mutators/permissions/index.ts
+  // Inside src/db/schema.zero.ts
+  import { AuthData } from "@/db/schema.zero";
+
   export async function assertIsPartnerRow(
     authData: AuthData,
     query: Query<typeof schema, "collaborations">,
@@ -233,7 +233,7 @@ Each custom mutator requires **two implementations**:
     invariant(authData.sub === partnerId, "User does not have permission to view this issue");
   }
 
-  // Inside a mutator in mutators/server
+  // Inside a mutator in src/mutators/server.ts
   updateCollaboration: async (
     tx: Transaction,
     change: UpdateValue<typeof schema.tables.collaborations>
