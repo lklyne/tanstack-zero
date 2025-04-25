@@ -9,14 +9,7 @@ import {
 	useRouteContext,
 } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import {
-	Binary,
-	DatabaseZap,
-	FormInput,
-	Home,
-	Server,
-	UserIcon,
-} from 'lucide-react'
+import { Binary, DatabaseZap, TreePalm, UserIcon } from 'lucide-react'
 import { use } from 'react'
 
 export const Route = createFileRoute('/_authed/app')({
@@ -65,8 +58,15 @@ function RouteComponent() {
 								<DatabaseZap className='h-4 w-4' aria-hidden={true} />
 								<span>Zero Mutations</span>
 							</Link>
-
 							<Link
+								to='/app/tanstack-examples'
+								className='px-2 flex items-center gap-2'
+							>
+								<TreePalm className='h-4 w-4' aria-hidden={true} />
+								<span>Tanstack Examples</span>
+							</Link>
+
+							{/* <Link
 								to='/app/simple-form'
 								className='px-2 flex items-center gap-2'
 							>
@@ -88,7 +88,7 @@ function RouteComponent() {
 							>
 								<Server className='h-4 w-4' aria-hidden={true} />
 								<span>Tanstack Server Functions</span>
-							</Link>
+							</Link> */}
 
 							<Link to='/app/account' className='px-2 flex items-center gap-2'>
 								<UserIcon className='h-4 w-4' aria-hidden={true} />

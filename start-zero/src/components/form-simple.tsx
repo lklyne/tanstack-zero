@@ -3,12 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useForm } from '@tanstack/react-form'
-import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
-
-export const Route = createFileRoute('/_authed/app/_layout/simple-form')({
-	component: SimpleForm,
-})
 
 const schema = z.object({
 	title: z.string().min(1, 'Title is required'),
@@ -19,7 +14,7 @@ function FieldError({ error }: { error?: string }) {
 	return error ? <p className='text-red-500 text-sm mt-1'>{error}</p> : null
 }
 
-function SimpleForm() {
+export function FormSimple() {
 	const form = useForm({
 		defaultValues: {
 			title: '',
@@ -35,8 +30,12 @@ function SimpleForm() {
 	})
 
 	return (
-		<div className='flex items-center justify-center min-h-screen bg-background text-foreground p-4'>
+		<div className='flex items-center justify-center bg-background text-foreground p-4'>
 			<div className='w-full max-w-2xl p-6 rounded-lg border bg-card text-card-foreground shadow-sm'>
+				<h2 className='text-xl font-semibold mb-2'>Simple Form</h2>
+				<p className='text-muted-foreground mb-8'>
+					Submit the form to see the console log.
+				</p>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault()

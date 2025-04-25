@@ -22,7 +22,6 @@ import {
 import { authClient } from '@/lib/auth-client'
 import { useNavigate } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import { AccountDebug } from './account-debug'
 
 export function NavUser() {
 	const { data: session, isPending } = authClient.useSession()
