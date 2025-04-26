@@ -8,7 +8,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { BugIcon, Loader2 } from 'lucide-react'
+import { BugIcon } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 // Helper function to decode Base64Url

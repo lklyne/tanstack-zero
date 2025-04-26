@@ -42,7 +42,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				title: 'Zero Start',
 			},
 		],
-		// Keep the stylesheet link, ensure suppressHydrationWarning is removed
 		links: [
 			{
 				rel: 'stylesheet',
