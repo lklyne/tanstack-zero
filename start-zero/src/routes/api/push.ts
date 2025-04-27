@@ -5,6 +5,34 @@ import { PushProcessor, connectionProvider } from '@rocicorp/zero/pg'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 import postgres from 'postgres'
 
+// Create a single postgres client at module scope
+// This client will be reused across all requests
+const sql = process.env.ZERO_UPSTREAM_DB
+	? postgres(process.env.ZERO_UPSTREAM_DB, {
+			max: 10, // Increase pool size for better concurrency
+			idle_timeout: 30, // Close idle connections after 30 seconds
+			ssl: false,
+		})
+	: null
+
+// Create a single PushProcessor instance at module scope
+const provider = sql ? connectionProvider(sql) : null
+const processor =
+	sql && provider ? new PushProcessor(zeroSchema, provider) : null
+
+// Count active connections for monitoring
+async function getConnectionCount() {
+	if (!sql) return { count: 0, message: 'No SQL client available' }
+	try {
+		const result =
+			await sql`SELECT count(*) as count FROM pg_stat_activity WHERE state = 'active'`
+		return { count: Number(result[0]?.count || 0), message: 'Success' }
+	} catch (err) {
+		console.error('Failed to get connection count:', err)
+		return { count: -1, message: String(err) }
+	}
+}
+
 export const APIRoute = createAPIFileRoute('/api/push')({
 	POST: async ({ request }) => {
 		try {
@@ -23,21 +51,18 @@ export const APIRoute = createAPIFileRoute('/api/push')({
 				headers: Object.fromEntries(request.headers.entries()),
 			})
 
-			// 2) Build Postgres connectionProvider
-			if (!process.env.ZERO_UPSTREAM_DB) {
-				throw new Error('ZERO_UPSTREAM_DB is not set')
+			// 2) Validate SQL client is available
+			if (!sql || !processor) {
+				throw new Error(
+					'Database client not initialized. Check ZERO_UPSTREAM_DB env variable.',
+				)
 			}
 
-			const sql = postgres(process.env.ZERO_UPSTREAM_DB, {
-				max: 1,
-				ssl: false,
-			})
-			const provider = connectionProvider(sql)
+			// Log connection count before processing
+			const beforeCount = await getConnectionCount()
+			console.log('🔵 Active DB connections before push:', beforeCount)
 
-			// 3) Instantiate PushProcessor
-			const processor = new PushProcessor(zeroSchema, provider)
-
-			// 4) Extract auth (JWT) from header or cookie
+			// 3) Extract auth (JWT) from header or cookie
 			const authHeader = request.headers.get('authorization') ?? ''
 			const token = authHeader.replace(/^Bearer\s+/, '')
 			const authData: AuthData = { sub: token ? parseSub(token) : null }
@@ -47,16 +72,20 @@ export const APIRoute = createAPIFileRoute('/api/push')({
 				token: token ? '(token present)' : '(no token)',
 			})
 
-			// 5) Call process()
+			// 4) Call process()
 			const result = await processor.process(
 				createServerMutators(authData),
 				query,
 				body,
 			)
 
+			// Log connection count after processing
+			const afterCount = await getConnectionCount()
+			console.log('🔵 Active DB connections after push:', afterCount)
+
 			console.log('🟪 Push completed successfully:', result)
 
-			// 6) Return JSON
+			// 5) Return JSON
 			return new Response(JSON.stringify(result), {
 				headers: {
 					'Content-Type': 'application/json',
