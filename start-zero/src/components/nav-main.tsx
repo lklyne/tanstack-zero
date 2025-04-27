@@ -6,7 +6,7 @@ interface HeaderProps {
 	location?: 'homepage' | 'auth' | 'app'
 }
 
-export default function Header({ location = 'homepage' }: HeaderProps) {
+export default function NavMain({ location = 'homepage' }: HeaderProps) {
 	return (
 		<>
 			{location === 'homepage' && <HomePageHeader />}

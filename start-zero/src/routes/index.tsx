@@ -1,4 +1,4 @@
-import Header from '@/components/Header'
+import NavMain from '@/components/nav-main'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
@@ -95,7 +95,7 @@ export default LandingPage
 function App() {
 	return (
 		<div className='text-center bg-background h-screen flex flex-col'>
-			<Header />
+			<NavMain />
 			<main className='flex flex-col items-center justify-center h-full'>
 				<LandingPage />
 			</main>
