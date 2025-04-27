@@ -3,6 +3,7 @@ import { authClient, signOut } from '@/lib/auth-client'
 import { useQuery, useZero } from '@rocicorp/zero/react'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import { AccountDelete } from './account-delete'
 import { Button } from './ui/button'
 
 const AccountOverview = () => {
@@ -44,41 +45,20 @@ const AccountOverview = () => {
 	}
 
 	return (
-		<div className='space-y-6 max-w-5xl mx-auto min-h-screen'>
-			<div className='pt-12 w-full'>
-				<h1 className='text-2xl font-bold mb-4'>Account</h1>
-				<div className='flex justify-between items-center'>
-					<p className='text-muted-foreground mb-6'>
-						Manage your account settings and preferences.
-					</p>
-					<div className='flex gap-2 justify-between flex-wrap'>
-						<Button
-							variant='outline'
-							onClick={handleLogout}
-							className='w-full sm:w-auto flex-grow sm:flex-grow-0'
-						>
-							Log Out
-						</Button>
-						<Button
-							variant='destructive'
-							onClick={() => deleteUser()}
-							className='w-full sm:w-auto flex-grow sm:flex-grow-0'
-						>
-							Delete Account
-						</Button>
-					</div>
-				</div>
+		<div className='m-4'>
+			{isPending && <p>Loading account data...</p>}
+			{error && <p className='text-destructive'>Error: {error.message}</p>}
 
-				{isPending && <p>Loading account data...</p>}
-				{error && <p className='text-destructive'>Error: {error.message}</p>}
-
-				{data ? (
-					<div className='space-y-4'>
-						{/* Profile Information - Zero DB Placeholder */}
-						<div className='p-4 border rounded-md'>
-							<h2 className='font-medium mb-4 px-2 py-0.5 bg-pink-50/50 text-pink-800 rounded border border-pink-200 dark:bg-pink-950/40 dark:text-pink-50 dark:border-pink-900 inline-block text-sm'>
+			{data ? (
+				<div className='space-y-4'>
+					<div className='flex flex-col border bg-background'>
+						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+							<h2 className='font-semibold text-sm'>Zero Database</h2>
+							<span className='px-2 py-0.5 bg-pink-50/50 text-pink-800 rounded border border-pink-200 dark:bg-pink-950/40 dark:text-pink-50 dark:border-pink-900 text-sm'>
 								Zero
-							</h2>
+							</span>
+						</div>
+						<div className='p-4'>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<div>
 									<p className='text-sm text-muted-foreground'>Name</p>
@@ -98,14 +78,16 @@ const AccountOverview = () => {
 								</div>
 							</div>
 						</div>
+					</div>
 
-						{/* Account Actions - Better Auth */}
-						<div className='p-4 border rounded-md space-y-4'>
-							<h2 className='font-medium mb-4'>
-								<span className='px-2 py-0.5 bg-blue-50/50 text-blue-800 rounded border border-blue-200 dark:bg-blue-950/40 dark:text-blue-50 dark:border-blue-900 inline-block text-sm'>
-									Better Auth
-								</span>
-							</h2>
+					<div className='flex flex-col border bg-background'>
+						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+							<h2 className='font-semibold text-sm'>Authentication</h2>
+							<span className='px-2 py-0.5 bg-blue-50/50 text-blue-800 rounded border border-blue-200 dark:bg-blue-950/40 dark:text-blue-50 dark:border-blue-900 text-sm'>
+								Better Auth
+							</span>
+						</div>
+						<div className='p-4'>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<div>
 									<p className='text-sm text-muted-foreground'>Name</p>
@@ -123,37 +105,21 @@ const AccountOverview = () => {
 									<p className='text-sm text-muted-foreground'>
 										Email Verified
 									</p>
-									{/* Assuming emailVerified might be available in session data later */}
 									<p>{data.user.emailVerified ? 'Yes' : 'No'}</p>
 								</div>
 							</div>
 						</div>
+					</div>
 
-						{/* Subscription - Polar Placeholder */}
-						<div className='p-4 border rounded-md'>
-							<div className='flex justify-between items-center mb-4'>
-								<h2 className='font-medium mb-4 px-2 py-0.5 bg-green-50/50 text-green-800 rounded border border-green-200 dark:bg-green-950/40 dark:text-green-50 dark:border-green-900 text-sm'>
-									Polar (Placeholder)
-								</h2>
-								<Button
-									variant='ghost'
-									size='sm'
-									onClick={refetchSubscription}
-									disabled={isSubscriptionLoading}
-								>
-									{isSubscriptionLoading ? (
-										<Loader2 className='h-4 w-4 animate-spin' />
-									) : (
-										'Refresh'
-									)}
-								</Button>
-							</div>
-
-							{/* Placeholder for subscription error handling */}
-							{/* <div className="text-destructive mb-4">Error loading subscription: {subscriptionError}</div> */}
-
+					<div className='flex flex-col border bg-background'>
+						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+							<h2 className='font-semibold text-sm'>Subscription</h2>
+							<span className='px-2 py-0.5 bg-green-50/50 text-green-800 rounded border border-green-200 dark:bg-green-950/40 dark:text-green-50 dark:border-green-900 text-sm'>
+								Polar
+							</span>
+						</div>
+						<div className='p-4'>
 							<div className='space-y-6'>
-								{/* Subscription Status Placeholder */}
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 									<div>
 										<p className='text-sm text-muted-foreground'>
@@ -161,35 +127,55 @@ const AccountOverview = () => {
 										</p>
 										<p className='font-medium'>{'Free (Placeholder)'}</p>
 									</div>
-									{/* Placeholder for next payment info */}
-									{/* <div>
-                                    <p className="text-sm text-muted-foreground">Next Payment</p>
-                                    <p className="font-medium">{'Date Placeholder'}</p>
-                                </div> */}
 								</div>
 
-								{/* Action Buttons Placeholder */}
 								<div className='flex flex-wrap gap-2'>
-									<Button
-										variant='outline' /* onClick={() => goToCheckout('pro')} */
-									>
+									<Button variant='outline' size='sm'>
 										{'Upgrade to Pro (Placeholder)'}
 									</Button>
-									{/* Placeholder for Manage Subscription button */}
-									{/* <Button variant="outline" onClick={() => goToPortal()}>Manage Subscription</Button> */}
-									<Button
-										variant='outline' /* onClick={handleProFeatureClick} */
-									>
+									<Button variant='outline' size='sm'>
 										Test Pro Feature (Placeholder)
+									</Button>
+									<Button
+										variant='ghost'
+										size='sm'
+										onClick={refetchSubscription}
+										disabled={isSubscriptionLoading}
+									>
+										{isSubscriptionLoading ? (
+											<Loader2 className='h-4 w-4 animate-spin' />
+										) : (
+											'Refresh'
+										)}
 									</Button>
 								</div>
 							</div>
 						</div>
 					</div>
-				) : (
-					!isPending && <p>Please log in to view account details.</p> // Show only if not loading and no data
-				)}
-			</div>
+
+					<div className='flex flex-col border bg-background'>
+						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+							<h2 className='font-semibold text-sm'>Danger Zone</h2>
+							<span className='px-2 py-0.5 bg-red-50/50 text-red-800 rounded border border-red-200 dark:bg-red-950/40 dark:text-red-50 dark:border-red-900 text-sm'>
+								Destructive Actions
+							</span>
+						</div>
+						<div className='p-4'>
+							<div className='space-y-4'>
+								<p className='text-sm text-muted-foreground'>
+									Deleting your account will permanently remove all your data
+									from Zero and Better Auth. This action cannot be undone.
+								</p>
+								<div>
+									<AccountDelete />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			) : (
+				!isPending && <p>Please log in to view account details.</p>
+			)}
 		</div>
 	)
 }

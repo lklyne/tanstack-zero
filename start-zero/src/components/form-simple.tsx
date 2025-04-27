@@ -20,9 +20,6 @@ export function FormSimple() {
 			title: '',
 			description: '',
 		},
-		validators: {
-			onChange: schema,
-		},
 		onSubmit: ({ value }: { value: z.infer<typeof schema> }) => {
 			console.log(value)
 			alert('Form submitted successfully!')
@@ -30,65 +27,86 @@ export function FormSimple() {
 	})
 
 	return (
-		<div className='flex items-center justify-center bg-background text-foreground p-4'>
-			<div className='w-full max-w-2xl p-6 rounded-lg border bg-card text-card-foreground shadow-sm'>
-				<h2 className='text-xl font-semibold mb-2'>Simple Form</h2>
-				<p className='text-muted-foreground mb-8'>
-					Submit the form to see the console log.
-				</p>
-				<form
-					onSubmit={(e) => {
-						e.preventDefault()
-						e.stopPropagation()
-						form.handleSubmit()
-					}}
-					className='space-y-6'
-				>
-					<form.Field
-						name='title'
-						children={(field) => (
-							<div className='space-y-1'>
-								<Label htmlFor={field.name}>Title</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								<FieldError error={field.state.meta.errors.join(', ')} />
-							</div>
-						)}
-					/>
-
-					<form.Field
-						name='description'
-						children={(field) => (
-							<div className='space-y-1'>
-								<Label htmlFor={field.name}>Description</Label>
-								<Textarea
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								<FieldError error={field.state.meta.errors.join(', ')} />
-							</div>
-						)}
-					/>
-
-					<div className='flex justify-end'>
-						<form.Subscribe
-							selector={(state) => [state.canSubmit, state.isSubmitting]}
-							children={([canSubmit, isSubmitting]) => (
-								<Button type='submit' disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? 'Submitting...' : 'Submit'}
-								</Button>
+		<div className='container'>
+			<div className='flex flex-col border m-4 bg-background'>
+				<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+					<h2 className='font-semibold text-sm'>Simple Form</h2>
+				</div>
+				<div className='p-4'>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault()
+							e.stopPropagation()
+							form.handleSubmit()
+						}}
+						className='space-y-6'
+					>
+						<form.Field
+							name='title'
+							validators={{
+								onChange: ({ value }) => {
+									const result = schema.shape.title.safeParse(value)
+									return result.success
+										? undefined
+										: result.error.errors[0].message
+								},
+							}}
+							children={(field) => (
+								<div className='space-y-1'>
+									<Label htmlFor={field.name}>Title</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									<FieldError error={field.state.meta.errors[0]} />
+								</div>
 							)}
 						/>
-					</div>
-				</form>
+
+						<form.Field
+							name='description'
+							validators={{
+								onChange: ({ value }) => {
+									const result = schema.shape.description.safeParse(value)
+									return result.success
+										? undefined
+										: result.error.errors[0].message
+								},
+							}}
+							children={(field) => (
+								<div className='space-y-1'>
+									<Label htmlFor={field.name}>Description</Label>
+									<Textarea
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									<FieldError error={field.state.meta.errors[0]} />
+								</div>
+							)}
+						/>
+
+						<div className='flex justify-end'>
+							<form.Subscribe
+								selector={(state) => [state.canSubmit, state.isSubmitting]}
+								children={([canSubmit, isSubmitting]) => (
+									<Button
+										type='submit'
+										size='sm'
+										disabled={!canSubmit || isSubmitting}
+									>
+										{isSubmitting ? 'Submitting...' : 'Submit'}
+									</Button>
+								)}
+							/>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	)

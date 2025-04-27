@@ -1,4 +1,5 @@
 import * as fs from 'node:fs'
+import { Button } from '@/components/ui/button'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 
@@ -33,18 +34,24 @@ function Home() {
 	const state = Route.useLoaderData()
 
 	return (
-		<div className='p-4'>
-			<button
-				type='button'
-				onClick={() => {
-					updateCount({ data: 1 }).then(() => {
-						router.invalidate()
-					})
-				}}
-				className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-			>
-				Add 1 to {state}?
-			</button>
+		<div className='container'>
+			<div className='flex flex-col border m-4'>
+				<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+					<h2 className='font-semibold text-sm'>Server Counter</h2>
+				</div>
+				<div className='p-4'>
+					<Button
+						onClick={() => {
+							updateCount({ data: 1 }).then(() => {
+								router.invalidate()
+							})
+						}}
+						size='sm'
+					>
+						Add 1 to {state}
+					</Button>
+				</div>
+			</div>
 		</div>
 	)
 }

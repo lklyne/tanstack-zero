@@ -37,7 +37,7 @@ function RouteComponent() {
 	return (
 		<ZeroProvider zero={z}>
 			<div className='flex'>
-				<aside className='w-64 bg-secondary/30 h-screen sticky top-0 border-r border-secondary'>
+				<aside className='w-64 bg-background h-screen sticky top-0 border-r border-secondary'>
 					<nav className='flex flex-col h-full p-2'>
 						{/* Header */}
 						<div className='flex justify-between gap-2 mb-4 items-center'>

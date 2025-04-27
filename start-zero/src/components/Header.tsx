@@ -18,12 +18,12 @@ export default function Header({ location = 'homepage' }: HeaderProps) {
 
 const HomePageHeader = () => {
 	return (
-		<nav className='w-full py-2 px-4 bg-background flex justify-between items-center border-b border-border text-sm'>
+		<nav className='w-full py-4 px-4 bg-background flex justify-between items-center border-b border-border text-sm'>
 			<Link className='font-bold flex items-center gap-2' to='/'>
 				{/* <Binary className='w-6 h-6' /> */}
 				Zero Start
 			</Link>
-			<div className='flex gap-4 items-center'>
+			<div className='flex gap-6 items-center'>
 				<a
 					href='https://github.com/lklyne/zero-start'
 					target='_blank'
@@ -33,7 +33,7 @@ const HomePageHeader = () => {
 					Github
 				</a>
 				<Link to='/auth/login'>
-					<Button>Login</Button>
+					<Button size='sm'>Login</Button>
 				</Link>
 			</div>
 		</nav>

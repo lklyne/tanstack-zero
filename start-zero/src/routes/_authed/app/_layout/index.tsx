@@ -1,15 +1,58 @@
 import AppNav from '@/components/nav-app'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useZero } from '@/lib/zero'
 import { faker } from '@faker-js/faker'
 import { useQuery } from '@rocicorp/zero/react'
 import { createFileRoute } from '@tanstack/react-router'
+import { FileJson2, ListX, Plus, Table, X } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+
+const useRapidFire = (callback: () => void, delay = 500) => {
+	const [isPressed, setIsPressed] = useState(false)
+
+	useEffect(() => {
+		let timeout: NodeJS.Timeout
+		let interval: NodeJS.Timeout
+
+		if (isPressed) {
+			// Initial delay before rapid fire starts
+			timeout = setTimeout(() => {
+				// Start rapid fire
+				interval = setInterval(callback, 1)
+			}, delay)
+		}
+
+		return () => {
+			clearTimeout(timeout)
+			clearInterval(interval)
+		}
+	}, [isPressed, callback, delay])
+
+	return {
+		onMouseDown: () => {
+			callback() // Immediate first action
+			setIsPressed(true)
+		},
+		onMouseUp: () => setIsPressed(false),
+		onMouseLeave: () => setIsPressed(false),
+		onTouchStart: () => {
+			callback() // Immediate first action
+			setIsPressed(true)
+		},
+		onTouchEnd: () => setIsPressed(false),
+	}
+}
 
 export const Route = createFileRoute('/_authed/app/_layout/')({
 	component: RouteComponent,
 	loader: async ({ context }) => {
-		// Log the session from the root context
-		console.log('Session in /_authed/app-main/ loader:', context.session)
 		// preload
 		const z = await context.z
 		if (z) {
@@ -18,14 +61,54 @@ export const Route = createFileRoute('/_authed/app/_layout/')({
 	},
 })
 
-function PersonList() {
+function PersonList({ view }: { view: 'json' | 'table' }) {
 	const z = useZero()
 	const [persons] = useQuery(z.query.persons)
+
+	if (view === 'json') {
+		return (
+			<div className='rounded-lg bg-background min-w-[300px]'>
+				<div className='p-4'>
+					<pre className='text-xs text-left'>
+						{JSON.stringify(persons, null, 2)}
+					</pre>
+				</div>
+			</div>
+		)
+	}
+
 	return (
-		<div className='rounded-lg bg-secondary/50 p-4 mx-4 min-w-[300px] border'>
-			<pre className='text-xs text-left'>
-				{JSON.stringify(persons, null, 2)}
-			</pre>
+		<div className='rounded-lg bg-background min-w-[300px]'>
+			<div>
+				{persons?.map((person) => (
+					<div
+						key={person.id}
+						className='flex items-center justify-between hover:bg-background group not-last:border-b border-transparent hover:border-border not-first:border-t px-4 py-2'
+					>
+						<span className='font-medium text-sm text-stone-700 group-hover:text-stone-950'>
+							{person.name}
+						</span>
+						<div className='flex items-center gap-2'>
+							<span className='text-sm text-muted-foreground w-auto'>
+								{person.id}
+							</span>
+							<Button
+								onClick={() => z.mutate.persons.delete({ id: person.id })}
+								variant='ghost'
+								size='sm'
+								className='opacity-0 group-hover:opacity-100 transition-opacity'
+							>
+								<X className='w-4 h-4' />
+							</Button>
+						</div>
+					</div>
+				))}
+			</div>
+			{persons?.length === 0 && (
+				<div className='flex items-center h-full px-4 py-3.5'>
+					<p className='text-sm text-muted-foreground'>No one's here yet</p>
+				</div>
+			)}
 		</div>
 	)
 }
@@ -34,37 +117,81 @@ function RouteComponent() {
 	const z = useZero()
 	const [persons] = useQuery(z.query.persons)
 
-	return (
-		<div className='container mx-auto space-y-8'>
-			<AppNav title='Zero Mutations' />
-			<div className='flex flex-col gap-4 py-2 border mx-4'>
-				<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2'>
-					<h2 className='font-semibold'>Persons</h2>
-					<div className='flex gap-2'>
-						<Button
-							onClick={() =>
-								z.mutate.persons.insert({
-									id: crypto.randomUUID(),
-									name: faker.person.fullName(),
-								})
-							}
-							variant='outline'
-						>
-							Add Random
-						</Button>
-						<Button
-							onClick={() =>
-								persons?.[0] && z.mutate.persons.delete({ id: persons[0].id })
-							}
-							variant='destructive'
-							className='bg-red-50 hover:bg-red-100 text-red-900 border-red-100 hover:border-red-200 hover:text-red-950 border'
-						>
-							Delete First
-						</Button>
-					</div>
-				</div>
+	const numPersons = persons?.length ?? 0
 
-				<PersonList />
+	const addPerson = useCallback(() => {
+		z.mutate.persons.insert({
+			id: crypto.randomUUID(),
+			name: faker.person.fullName(),
+		})
+	}, [z.mutate.persons])
+
+	const clearAll = useCallback(() => {
+		if (persons) {
+			for (const person of persons) {
+				z.mutate.persons.delete({ id: person.id })
+			}
+		}
+	}, [persons, z.mutate.persons])
+
+	const rapidAddHandlers = useRapidFire(addPerson)
+
+	return (
+		<div className='container flex flex-col min-h-screen'>
+			<AppNav title='Zero Mutations' />
+			<div className='flex flex-col bg-secondary/40 grow'>
+				<Tabs defaultValue='table' className='m-4'>
+					<div className='flex flex-col border'>
+						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2 bg-background'>
+							<div className='flex items-center gap-4'>
+								<h2 className='font-semibold text-sm'>
+									Persons ({numPersons})
+								</h2>
+							</div>
+							<div className='flex gap-1'>
+								<TabsList className='h-8 mr-2'>
+									<TabsTrigger value='table'>
+										<Table className='w-4 h-4' />
+									</TabsTrigger>
+									<TabsTrigger value='json'>
+										<FileJson2 className='w-4 h-4' />
+									</TabsTrigger>
+								</TabsList>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Button variant='outline' size='sm' {...rapidAddHandlers}>
+												<Plus className='w-4 h-4' />
+											</Button>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Hold to rapidly add people</p>
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Button size='sm' variant='outline' onClick={clearAll}>
+												<ListX className='w-4 h-4' />
+											</Button>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Clear all people</p>
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
+							</div>
+						</div>
+
+						<TabsContent value='json' className='m-0'>
+							<PersonList view='json' />
+						</TabsContent>
+						<TabsContent value='table' className='m-0'>
+							<PersonList view='table' />
+						</TabsContent>
+					</div>
+				</Tabs>
 			</div>
 		</div>
 	)

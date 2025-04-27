@@ -1,7 +1,9 @@
 import * as fs from 'node:fs'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Route as TanstackExamplesRoute } from '@/routes/_authed/app/_layout/tanstack-examples'
-import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useState } from 'react'
 
 const filePath = 'count.txt'
 
@@ -48,28 +50,51 @@ export const tsServerActionLoader = async () => await getCount()
 
 export function TsServerAction() {
 	const { tsServerAction: state } = TanstackExamplesRoute.useLoaderData()
+	const [addByValue, setAddByValue] = useState('1')
 
 	return (
-		<div className='p-4'>
-			<form
-				action={updateCount.url}
-				method='POST'
-				onSubmit={async (e) => {
-					e.preventDefault()
-					const form = e.currentTarget
-					const formData = new FormData(form)
-					await updateCount({ data: formData })
-					// The server will handle the redirect, and the router will handle it client-side when JS is enabled
-				}}
-			>
-				<input type='hidden' name='addBy' value='1' />
-				<button
-					type='submit'
-					className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-				>
-					Add 1 to {state}?
-				</button>
-			</form>
+		<div className='container'>
+			<div className='flex flex-col border m-4 bg-background'>
+				<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+					<h2 className='font-semibold text-sm'>Server Action Counter</h2>
+				</div>
+				<div className='p-4 flex flex-col gap-4'>
+					<p className='text-sm'>
+						This example demonstrates a TanStack Start server action that
+						maintains a counter in a file. It uses progressive enhancement to
+						work with and without JavaScript, handling form submissions and
+						automatic redirects through TanStack's createServerFn utility.
+					</p>
+					<p className='text-sm'>
+						This is poorly implemented. It invalidates the entire router
+						context, causing the zero instance to reload.
+					</p>
+
+					<form
+						action={updateCount.url}
+						method='POST'
+						onSubmit={async (e) => {
+							e.preventDefault()
+							const form = e.currentTarget
+							const formData = new FormData(form)
+							await updateCount({ data: formData })
+							// The server will handle the redirect, and the router will handle it client-side when JS is enabled
+						}}
+					>
+						<div className='flex items-center gap-2'>
+							<Input
+								type='number'
+								name='addBy'
+								value={addByValue}
+								onChange={(e) => setAddByValue(e.target.value)}
+							/>
+							<Button type='submit' size='sm'>
+								Add {addByValue} to {state}
+							</Button>
+						</div>
+					</form>
+				</div>
+			</div>
 		</div>
 	)
 }

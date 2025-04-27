@@ -19,10 +19,12 @@ function RouteComponent() {
 	return (
 		<div>
 			<NavApp title='Tanstack Examples' />
-			<div className='flex flex-col gap-16 py-24'>
-				<FormSimple />
-				<FormAddress />
-				<TsServerAction />
+			<div className='flex flex-col gap-8 bg-secondary/40'>
+				<div className='flex flex-col gap-4 max-w-2xl'>
+					<FormSimple />
+					<FormAddress />
+					<TsServerAction />
+				</div>
 			</div>
 		</div>
 	)

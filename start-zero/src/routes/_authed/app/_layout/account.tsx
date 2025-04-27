@@ -1,4 +1,5 @@
 import { AccountDebug } from '@/components/account-debug'
+import { AccountLogout } from '@/components/account-logout'
 import AccountOverview from '@/components/account-overview'
 import NavApp from '@/components/nav-app'
 import { createFileRoute } from '@tanstack/react-router'
@@ -9,13 +10,16 @@ export const Route = createFileRoute('/_authed/app/_layout/account')({
 
 function RouteComponent() {
 	return (
-		<div className='container mx-auto flex flex-col justify-center min-h-screen'>
+		<div className='container flex flex-col min-h-screen'>
 			<NavApp title='Account'>
-				<div className='flex items-center'>
+				<div className='flex items-center gap-2'>
 					<AccountDebug />
+					<AccountLogout />
 				</div>
 			</NavApp>
-			<AccountOverview />
+			<div className='flex flex-col bg-secondary/40 grow'>
+				<AccountOverview />
+			</div>
 		</div>
 	)
 }

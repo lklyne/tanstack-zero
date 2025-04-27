@@ -44,111 +44,31 @@ export function FormAddress() {
 	})
 
 	return (
-		<div className='flex items-center justify-center bg-background text-foreground p-4'>
-			<div className='w-full max-w-2xl p-6 rounded-lg border bg-card text-card-foreground shadow-sm'>
-				<h2 className='text-xl font-semibold mb-2'>Address Form</h2>
-				<p className='text-muted-foreground mb-8'>
-					Submit the form to see the console log.
-				</p>
-				<form
-					onSubmit={(e) => {
-						e.preventDefault()
-						e.stopPropagation()
-						form.handleSubmit()
-					}}
-					className='space-y-6'
-				>
-					<form.Field
-						name='fullName'
-						validators={{
-							onChange: ({ value }) =>
-								!value || value.trim().length === 0
-									? 'Full name is required'
-									: undefined,
+		<div className='container'>
+			<div className='flex flex-col border m-4 bg-background'>
+				<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+					<h2 className='font-semibold text-sm'>Address Form</h2>
+				</div>
+				<div className='p-4'>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault()
+							e.stopPropagation()
+							form.handleSubmit()
 						}}
-						children={(field) => (
-							<div className='space-y-1'>
-								<Label htmlFor={field.name}>Full Name</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								<FieldError error={field.state.meta.errors.join(', ')} />
-							</div>
-						)}
-					/>
-
-					<form.Field
-						name='email'
-						validators={{
-							onChange: ({ value }) => {
-								if (!value || value.trim().length === 0) {
-									return 'Email is required'
-								}
-								if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-									return 'Invalid email address'
-								}
-								return undefined
-							},
-						}}
-						children={(field) => (
-							<div className='space-y-1'>
-								<Label htmlFor={field.name}>Email</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									type='email'
-								/>
-								<FieldError error={field.state.meta.errors.join(', ')} />
-							</div>
-						)}
-					/>
-
-					<form.Field
-						name='address.street'
-						validators={{
-							onChange: ({ value }) => {
-								if (!value || value.trim().length === 0) {
-									return 'Street address is required'
-								}
-								return undefined
-							},
-						}}
-						children={(field) => (
-							<div className='space-y-1'>
-								<Label htmlFor={field.name}>Street Address</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								<FieldError error={field.state.meta.errors.join(', ')} />
-							</div>
-						)}
-					/>
-
-					<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+						className='space-y-6'
+					>
 						<form.Field
-							name='address.city'
+							name='fullName'
 							validators={{
-								onChange: ({ value }) => {
-									if (!value || value.trim().length === 0) {
-										return 'City is required'
-									}
-									return undefined
-								},
+								onChange: ({ value }) =>
+									!value || value.trim().length === 0
+										? 'Full name is required'
+										: undefined,
 							}}
 							children={(field) => (
 								<div className='space-y-1'>
-									<Label htmlFor={field.name}>City</Label>
+									<Label htmlFor={field.name}>Full Name</Label>
 									<Input
 										id={field.name}
 										name={field.name}
@@ -160,19 +80,49 @@ export function FormAddress() {
 								</div>
 							)}
 						/>
+
 						<form.Field
-							name='address.state'
+							name='email'
 							validators={{
 								onChange: ({ value }) => {
 									if (!value || value.trim().length === 0) {
-										return 'State is required'
+										return 'Email is required'
+									}
+									if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+										return 'Invalid email address'
 									}
 									return undefined
 								},
 							}}
 							children={(field) => (
 								<div className='space-y-1'>
-									<Label htmlFor={field.name}>State</Label>
+									<Label htmlFor={field.name}>Email</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										type='email'
+									/>
+									<FieldError error={field.state.meta.errors.join(', ')} />
+								</div>
+							)}
+						/>
+
+						<form.Field
+							name='address.street'
+							validators={{
+								onChange: ({ value }) => {
+									if (!value || value.trim().length === 0) {
+										return 'Street address is required'
+									}
+									return undefined
+								},
+							}}
+							children={(field) => (
+								<div className='space-y-1'>
+									<Label htmlFor={field.name}>Street Address</Label>
 									<Input
 										id={field.name}
 										name={field.name}
@@ -184,112 +134,167 @@ export function FormAddress() {
 								</div>
 							)}
 						/>
+
+						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+							<form.Field
+								name='address.city'
+								validators={{
+									onChange: ({ value }) => {
+										if (!value || value.trim().length === 0) {
+											return 'City is required'
+										}
+										return undefined
+									},
+								}}
+								children={(field) => (
+									<div className='space-y-1'>
+										<Label htmlFor={field.name}>City</Label>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+										<FieldError error={field.state.meta.errors.join(', ')} />
+									</div>
+								)}
+							/>
+							<form.Field
+								name='address.state'
+								validators={{
+									onChange: ({ value }) => {
+										if (!value || value.trim().length === 0) {
+											return 'State is required'
+										}
+										return undefined
+									},
+								}}
+								children={(field) => (
+									<div className='space-y-1'>
+										<Label htmlFor={field.name}>State</Label>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+										<FieldError error={field.state.meta.errors.join(', ')} />
+									</div>
+								)}
+							/>
+							<form.Field
+								name='address.zipCode'
+								validators={{
+									onChange: ({ value }) => {
+										if (!value || value.trim().length === 0) {
+											return 'Zip code is required'
+										}
+										if (!/^\d{5}(-\d{4})?$/.test(value)) {
+											return 'Invalid zip code format'
+										}
+										return undefined
+									},
+								}}
+								children={(field) => (
+									<div className='space-y-1'>
+										<Label htmlFor={field.name}>Zip Code</Label>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+										<FieldError error={field.state.meta.errors.join(', ')} />
+									</div>
+								)}
+							/>
+						</div>
+
 						<form.Field
-							name='address.zipCode'
+							name='address.country'
 							validators={{
 								onChange: ({ value }) => {
 									if (!value || value.trim().length === 0) {
-										return 'Zip code is required'
-									}
-									if (!/^\d{5}(-\d{4})?$/.test(value)) {
-										return 'Invalid zip code format'
+										return 'Country is required'
 									}
 									return undefined
 								},
 							}}
 							children={(field) => (
 								<div className='space-y-1'>
-									<Label htmlFor={field.name}>Zip Code</Label>
+									<Label htmlFor={field.name}>Country</Label>
+									<Select
+										value={field.state.value}
+										onValueChange={(value) => field.handleChange(value)}
+										name={field.name}
+									>
+										<SelectTrigger id={field.name} className='w-full'>
+											<SelectValue placeholder='Select a country' />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value='US'>United States</SelectItem>
+											<SelectItem value='CA'>Canada</SelectItem>
+											<SelectItem value='UK'>United Kingdom</SelectItem>
+											<SelectItem value='AU'>Australia</SelectItem>
+											<SelectItem value='DE'>Germany</SelectItem>
+											<SelectItem value='FR'>France</SelectItem>
+											<SelectItem value='JP'>Japan</SelectItem>
+										</SelectContent>
+									</Select>
+									<FieldError error={field.state.meta.errors.join(', ')} />
+								</div>
+							)}
+						/>
+
+						<form.Field
+							name='phone'
+							validators={{
+								onChange: ({ value }) => {
+									if (!value || value.trim().length === 0) {
+										return 'Phone number is required'
+									}
+									if (!/^\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value)) {
+										return 'Invalid phone number format (e.g., 123-456-7890)'
+									}
+									return undefined
+								},
+							}}
+							children={(field) => (
+								<div className='space-y-1'>
+									<Label htmlFor={field.name}>Phone</Label>
 									<Input
 										id={field.name}
 										name={field.name}
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder='123-456-7890'
+										type='tel'
 									/>
 									<FieldError error={field.state.meta.errors.join(', ')} />
 								</div>
 							)}
 						/>
-					</div>
 
-					<form.Field
-						name='address.country'
-						validators={{
-							onChange: ({ value }) => {
-								if (!value || value.trim().length === 0) {
-									return 'Country is required'
-								}
-								return undefined
-							},
-						}}
-						children={(field) => (
-							<div className='space-y-1'>
-								<Label htmlFor={field.name}>Country</Label>
-								<Select
-									value={field.state.value}
-									onValueChange={(value) => field.handleChange(value)}
-									name={field.name}
-								>
-									<SelectTrigger id={field.name} className='w-full'>
-										<SelectValue placeholder='Select a country' />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value='US'>United States</SelectItem>
-										<SelectItem value='CA'>Canada</SelectItem>
-										<SelectItem value='UK'>United Kingdom</SelectItem>
-										<SelectItem value='AU'>Australia</SelectItem>
-										<SelectItem value='DE'>Germany</SelectItem>
-										<SelectItem value='FR'>France</SelectItem>
-										<SelectItem value='JP'>Japan</SelectItem>
-									</SelectContent>
-								</Select>
-								<FieldError error={field.state.meta.errors.join(', ')} />
-							</div>
-						)}
-					/>
-
-					<form.Field
-						name='phone'
-						validators={{
-							onChange: ({ value }) => {
-								if (!value || value.trim().length === 0) {
-									return 'Phone number is required'
-								}
-								if (!/^\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value)) {
-									return 'Invalid phone number format (e.g., 123-456-7890)'
-								}
-								return undefined
-							},
-						}}
-						children={(field) => (
-							<div className='space-y-1'>
-								<Label htmlFor={field.name}>Phone</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder='123-456-7890'
-									type='tel'
-								/>
-								<FieldError error={field.state.meta.errors.join(', ')} />
-							</div>
-						)}
-					/>
-
-					<div className='flex justify-end'>
-						<form.Subscribe
-							selector={(state) => [state.canSubmit, state.isSubmitting]}
-							children={([canSubmit, isSubmitting]) => (
-								<Button type='submit' disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? 'Submitting...' : 'Submit'}
-								</Button>
-							)}
-						/>
-					</div>
-				</form>
+						<div className='flex justify-end'>
+							<form.Subscribe
+								selector={(state) => [state.canSubmit, state.isSubmitting]}
+								children={([canSubmit, isSubmitting]) => (
+									<Button
+										type='submit'
+										size='sm'
+										disabled={!canSubmit || isSubmitting}
+									>
+										{isSubmitting ? 'Submitting...' : 'Submit'}
+									</Button>
+								)}
+							/>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	)

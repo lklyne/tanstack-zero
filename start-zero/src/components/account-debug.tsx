@@ -90,8 +90,8 @@ export function AccountDebug() {
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant='outline'>
-					<BugIcon className='mr-2 h-4 w-4' />
+				<Button variant='outline' size='sm' className='px-2'>
+					<BugIcon className='h-4 w-4' />
 					Debug
 				</Button>
 			</DialogTrigger>
