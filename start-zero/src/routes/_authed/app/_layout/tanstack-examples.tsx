@@ -17,13 +17,15 @@ export const Route = createFileRoute('/_authed/app/_layout/tanstack-examples')({
 
 function RouteComponent() {
 	return (
-		<div>
+		<div className='container flex flex-col h-full overflow-y-auto'>
 			<NavApp title='Tanstack Examples' />
-			<div className='flex flex-col gap-8 bg-secondary/40'>
-				<div className='flex flex-col gap-4 max-w-2xl'>
-					<FormSimple />
-					<FormAddress />
-					<TsServerAction />
+			<div className='flex flex-col grow overflow-y-auto'>
+				<div className='flex flex-col gap-8'>
+					<div className='flex flex-col gap-4 max-w-2xl'>
+						<FormSimple />
+						<FormAddress />
+						<TsServerAction />
+					</div>
 				</div>
 			</div>
 		</div>

@@ -1,6 +1,5 @@
 import AppNav from '@/components/nav-app'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
 	Tooltip,
 	TooltipContent,
@@ -10,7 +9,7 @@ import {
 import { useZero } from '@/lib/zero'
 import { faker } from '@faker-js/faker'
 import { useQuery } from '@rocicorp/zero/react'
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { FileJson2, ListX, Plus, Table, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -81,17 +80,22 @@ function PersonList({ view }: { view: 'json' | 'table' }) {
 		<div className='rounded-lg bg-background min-w-[300px]'>
 			<div>
 				{persons?.map((person) => (
-					<div
-						key={person.id}
-						className='flex items-center justify-between hover:bg-background group not-last:border-b border-transparent hover:border-border not-first:border-t px-4 py-2'
-					>
-						<span className='font-medium text-sm text-stone-700 group-hover:text-stone-950'>
-							{person.name}
-						</span>
-						<div className='flex items-center gap-2'>
-							<span className='text-sm text-muted-foreground w-auto'>
-								{person.id}
+					<div key={person.id} className='flex'>
+						<Link
+							to='/app/$personId'
+							params={{ personId: person.id }}
+							className='flex grow items-center justify-between hover:bg-secondary/40 group pl-4 pr-2 py-2'
+						>
+							<span className='font-medium text-sm text-stone-700 group-hover:text-stone-950'>
+								{person.name}
 							</span>
+							<div className='flex items-center gap-2'>
+								<span className='text-sm text-muted-foreground w-auto'>
+									{person.id}
+								</span>
+							</div>
+						</Link>
+						<div className='pr-2 flex items-center'>
 							<Button
 								onClick={() => z.mutate.persons.delete({ id: person.id })}
 								variant='ghost'
@@ -116,6 +120,7 @@ function PersonList({ view }: { view: 'json' | 'table' }) {
 function RouteComponent() {
 	const z = useZero()
 	const [persons] = useQuery(z.query.persons)
+	const [view, setView] = useState<'table' | 'json'>('table')
 
 	const numPersons = persons?.length ?? 0
 
@@ -137,28 +142,47 @@ function RouteComponent() {
 	const rapidAddHandlers = useRapidFire(addPerson)
 
 	return (
-		<div className='container flex flex-col min-h-screen'>
-			<AppNav title='Zero Mutations' />
-			<div className='flex flex-col bg-secondary/40 grow'>
-				<Tabs defaultValue='table' className='m-4'>
-					<div className='flex flex-col border'>
-						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2 bg-background'>
+		<div className='container flex flex-col h-full overflow-y-auto'>
+			<AppNav title='Zero Mutations'>
+				<div className='flex gap-2'>
+					<Button
+						variant='outline'
+						size='xs'
+						onClick={() => setView('table')}
+						className={
+							view === 'table'
+								? 'bg-stone-200/80 hover:bg-stone-200 border-stone-300'
+								: ''
+						}
+					>
+						<Table className='w-4 h-4' />
+						Table
+					</Button>
+					<Button
+						variant='outline'
+						size='xs'
+						onClick={() => setView('json')}
+						className={
+							view === 'json'
+								? 'bg-stone-200/80 hover:bg-stone-200 border-stone-300'
+								: ''
+						}
+					>
+						<FileJson2 className='w-3.5 h-3.5' />
+						JSON
+					</Button>
+				</div>
+			</AppNav>
+			<div className='flex flex-col grow overflow-y-auto'>
+				<div className=''>
+					<div className='flex flex-col'>
+						<div className='sticky top-0 flex items-center gap-2 w-full justify-between px-4 py-2 bg-background border-b border-border'>
 							<div className='flex items-center gap-4'>
-								<h2 className='font-semibold text-sm'>
-									Persons ({numPersons})
-								</h2>
+								<h2 className='font-medium text-sm'>Persons ({numPersons})</h2>
 							</div>
-							<div className='flex gap-1'>
-								<TabsList className='h-8 mr-2'>
-									<TabsTrigger value='table'>
-										<Table className='w-4 h-4' />
-									</TabsTrigger>
-									<TabsTrigger value='json'>
-										<FileJson2 className='w-4 h-4' />
-									</TabsTrigger>
-								</TabsList>
+							<div className='flex gap-2'>
 								<TooltipProvider>
-									<Tooltip>
+									<Tooltip delayDuration={500}>
 										<TooltipTrigger asChild>
 											<Button variant='outline' size='sm' {...rapidAddHandlers}>
 												<Plus className='w-4 h-4' />
@@ -170,7 +194,7 @@ function RouteComponent() {
 									</Tooltip>
 								</TooltipProvider>
 								<TooltipProvider>
-									<Tooltip>
+									<Tooltip delayDuration={500}>
 										<TooltipTrigger asChild>
 											<Button size='sm' variant='outline' onClick={clearAll}>
 												<ListX className='w-4 h-4' />
@@ -184,14 +208,9 @@ function RouteComponent() {
 							</div>
 						</div>
 
-						<TabsContent value='json' className='m-0'>
-							<PersonList view='json' />
-						</TabsContent>
-						<TabsContent value='table' className='m-0'>
-							<PersonList view='table' />
-						</TabsContent>
+						<PersonList view={view} />
 					</div>
-				</Tabs>
+				</div>
 			</div>
 		</div>
 	)

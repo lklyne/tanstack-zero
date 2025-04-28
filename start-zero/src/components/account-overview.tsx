@@ -125,7 +125,7 @@ const AccountOverview = () => {
 										<p className='text-sm text-muted-foreground'>
 											Current Plan
 										</p>
-										<p className='font-medium'>{'Free (Placeholder)'}</p>
+										<p className=''>{'Free (Placeholder)'}</p>
 									</div>
 								</div>
 

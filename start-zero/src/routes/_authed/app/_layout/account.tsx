@@ -17,7 +17,7 @@ function RouteComponent() {
 					<AccountLogout />
 				</div>
 			</NavApp>
-			<div className='flex flex-col bg-secondary/40 grow'>
+			<div className='flex flex-col grow overflow-y-auto'>
 				<AccountOverview />
 			</div>
 		</div>

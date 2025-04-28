@@ -1,5 +1,3 @@
-'use client'
-
 import {
 	BugIcon,
 	CreditCardIcon,

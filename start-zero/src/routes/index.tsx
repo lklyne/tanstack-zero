@@ -18,10 +18,19 @@ const StackItem = ({
 		href={url}
 		target='_blank'
 		rel='noopener noreferrer'
-		className='flex flex-col transition-transform px-12 py-8 border border-secondary items-start -ml-[1px] first:ml-0 hover:relative hover:z-10 hover:border-secondary/80 text-pretty hover:bg-secondary/20'
+		className='flex flex-col transition-transform px-12 py-8 border border-border items-start -ml-[1px] first:ml-0 hover:relative hover:z-10 hover:border-primary/80 text-pretty hover:bg-secondary/20 group'
 	>
-		<h3 className='transition-colors font-medium w-full'>{name}</h3>
-		<p className='text-muted-foreground text-sm w-full '>{description}</p>
+		<div className='flex items-center justify-center w-full'>
+			<h3 className='transition-transform duration-200 font-medium group-hover:translate-x-[-4px] will-change-transform'>
+				{name}
+			</h3>
+			<span className='opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-0 group-hover:translate-x-1 will-change-transform'>
+				→
+			</span>
+		</div>
+		<p className='text-muted-foreground text-sm w-full text-center'>
+			{description}
+		</p>
 	</a>
 )
 
@@ -35,7 +44,7 @@ const LandingPage = () => {
 		{
 			name: 'Tanstack Start',
 			url: 'https://tanstack.com/start/latest',
-			description: 'Full stack react framework.',
+			description: 'Full-stack React framework.',
 		},
 		{
 			name: 'Better Auth',
@@ -51,23 +60,12 @@ const LandingPage = () => {
 
 	return (
 		<div className='size-full bg-background text-foreground relative overflow-hidden flex flex-col'>
-			{/* Grid background */}
-			{/* <div
-				className='absolute inset-0 z-0 opacity-40'
-				style={{
-					backgroundImage:
-						'linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)',
-					backgroundSize: '8px 8px',
-					backgroundPosition: '-1px -1px',
-				}}
-			/> */}
-
 			{/* Main content */}
 			<main className='relative z-10 flex flex-col items-center flex-1 px-4'>
 				<div className='flex flex-col items-center justify-center flex-1 gap-2'>
 					<h1
 						className='text-xl md:text-6xl font-semibold
-					 text-center mb-4 leading-normal tracking-tight'
+					 text-center leading-normal tracking-tight'
 					>
 						Zero Start
 					</h1>
