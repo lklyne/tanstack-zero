@@ -1,9 +1,12 @@
-import { createRouter as createTanstackRouter } from '@tanstack/react-router'
+import {
+	Link,
+	createRouter as createTanstackRouter,
+} from '@tanstack/react-router'
 
 // Import the generated route tree
-import { routeTree } from './routeTree.gen'
+import { routeTree } from './routeTree.gen.ts'
 
-import './styles.css'
+// import './styles.css'
 
 // Create a new router instance
 export const createRouter = () => {
@@ -11,8 +14,17 @@ export const createRouter = () => {
 		routeTree,
 		context: {
 			z: undefined,
+			session: null,
 		},
 		scrollRestoration: true,
+		defaultNotFoundComponent: () => {
+			return (
+				<div>
+					<p>Not found!</p>
+					<Link to='/'>Go home</Link>
+				</div>
+			)
+		},
 	})
 	return router
 }

@@ -12,11 +12,14 @@ bun db:up
 # Push the schema to the database
 bun db:push
 
+# Push the auth schema to the database
+bun db:auth:push
+
 # Start Zero Cache
 bun zero-cache
 
 # Start dev server
-bun dev 
+bun dev
 ```
 
 ## Stack
@@ -26,3 +29,12 @@ bun dev
 - Drizzle
 - Shadcn
 - Biome
+
+## Schema workflow
+
+- Edit your Drizzle schema in `src/db/schema.ts`.
+- Update your Zero schema in `src/db/schema.zero.ts`.
+- Run `bun db:generate` to scaffold a migration.
+- Apply with `bun db:migrate` (or `bun db:push` to force-sync).
+- Restart Zero cache (`bun zero-cache`).
+- Restart your dev server (`bun dev`).

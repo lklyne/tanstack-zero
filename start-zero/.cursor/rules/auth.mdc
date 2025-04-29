@@ -1,0 +1,86 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Authentication Flow Overview
+
+This document outlines how authentication is wired up in the project using Better Auth, JWT, and Zero Sync. It captures both server and client concerns, plus automatic routes and key integration points.
+
+## 1. Better Auth Server Setup (src/lib/auth.ts)
+
+- Uses `betterAuth({ ... })` to bootstrap auth under `basePath: '/api/auth'` via the Drizzle adapter:
+  ```ts
+  export const auth = betterAuth({
+    secret: process.env.BETTER_AUTH_SECRET,
+    basePath: '/api/auth',
+    database: drizzleAdapter(authDb, { schema: authSchema, provider: 'pg' }),
+    plugins: [ jwt({ jwt: { expirationTime: '1w' } }) ],
+    emailAndPassword: { enabled: true, minPasswordLength: 2, autoSignIn: true },
+    socialProviders: { google: { clientId, clientSecret } },
+    hooks: {
+      after: createAuthMiddleware(async ctx => { /* syncUserToZero on sign-up / sign-in */ })
+    }
+  })
+  ```
+
+- **Automatic Routes:** Better Auth generates these endpoints under `/api/auth`:
+  - `/sign-up`, `/sign-in`, `/sign-out`, `/callback` (social)
+  - `/token` (JWT retrieval) & `/jwks` (public keyset)
+
+## 2. JWT & JWKS Integration
+
+- Configured via the `jwt()` plugin. Exposes:
+  - **/api/auth/token** → returns `{ token: 'ey...' }` plus `set-auth-jwt` header.
+  - **/api/auth/jwks** → publishes JSON Web Key Set for token verification.
+
+- Tokens are signed using EdDSA (Ed25519) by default; can be customized.
+
+## 3. Client-Side Auth (src/lib/auth-client.ts)
+
+- Uses `createAuthClient()` from `better-auth/react`:
+  ```ts
+  export const authClient = createAuthClient({ /* optional plugins */ })
+  export const { signIn, signUp, signOut, getSession, useSession } = authClient
+  ```
+- `useSession()` hook keeps UI in sync with session state.
+
+## 4. Syncing Users to Zero (src/lib/sync-user-to-zero.ts)
+
+- Registered in `after` hook of Better Auth. On successful sign-up or social callback:
+  ```ts
+  await sql.begin(tx =>
+    tx`INSERT INTO public.users (id, email, name)
+        VALUES (...) ON CONFLICT (id) DO NOTHING`
+  )
+  ```
+- Ensures Zero’s Postgres mirror stays in sync with the auth database.
+
+## 5. Initializing Zero with JWT (src/lib/zero.tsx)
+
+- `initZero()` fetches the JWT from `/api/auth/token`, then:
+  - Parses `sub` (user ID) from JWT payload.
+  - Supplies `auth(jwt?)` callback to Zero for push credentials.
+  - Passes `userID` and `mutators` into Zero constructor.
+
+## 6. Protecting Routes (src/routes/_authed.tsx)
+
+- Uses TanStack Router’s `beforeLoad` hook to enforce authentication:
+  ```ts
+  export const Route = createFileRoute('/_authed')({
+    beforeLoad: ({ context, location }) => {
+      if (!context.session) throw redirect({ to: '/auth/login', search: { redirect: location.href } })
+    },
+  })
+  ```
+- Any route nested under `/_authed` requires a valid session.
+
+## References
+
+- Better Auth Basic Usage[^1]
+- Better Auth JWT Plugin[^2]
+- Zero Sync Auth Integration[^3]
+
+[^1]: https://www.better-auth.com/docs/basic-usage  
+[^2]: https://www.better-auth.com/docs/plugins/jwt  
+[^3]: https://zero.rocicorp.dev/docs/auth

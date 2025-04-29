@@ -1,20 +1,34 @@
+import { DefaultCatchBoundary } from '@/components/default-catch-boundry'
 import type { initZero } from '@/lib/zero'
+import type { ErrorComponentProps } from '@tanstack/react-router'
 import {
 	HeadContent,
 	Outlet,
 	Scripts,
 	createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import Header from '../components/Header'
+// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import appCss from '../styles.css?url'
+// Import CSS as a URL
+import appCss from '@/styles.css?url'
 
+// Import the server function from its dedicated file
+import { fetchAuthSession } from '@/lib/session.server'
+import type { Session } from 'better-auth' // Restore Session type import
+
+// Update the router context to include the session
 interface MyRouterContext {
 	z: ReturnType<typeof initZero> | undefined
+	session: Session | null // Restore session state
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+	// Restore the beforeLoad hook
+	beforeLoad: async () => {
+		const { session } = await fetchAuthSession()
+		// Return the session data to be added to the route context
+		return { session }
+	},
 	head: () => ({
 		meta: [
 			{
@@ -25,7 +39,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: 'width=device-width, initial-scale=1',
 			},
 			{
-				title: 'TanStack Start Starter',
+				title: 'Zero Start',
 			},
 		],
 		links: [
@@ -34,15 +48,22 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				href: appCss,
 			},
 		],
+		errorComponent: (props: ErrorComponentProps) => {
+			return (
+				<RootDocument>
+					<DefaultCatchBoundary {...props} />
+				</RootDocument>
+			)
+		},
 	}),
 
 	component: () => (
-		<RootDocument>
-			<Header />
-
-			<Outlet />
-			<TanStackRouterDevtools />
-		</RootDocument>
+		<>
+			<RootDocument>
+				<Outlet />
+				{/* <TanStackRouterDevtools /> */}
+			</RootDocument>
+		</>
 	),
 })
 
@@ -52,7 +73,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className='overscroll-none'>
 				{children}
 				<Scripts />
 			</body>
