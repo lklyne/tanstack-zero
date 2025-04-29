@@ -35,6 +35,10 @@ export function NavUser() {
 		navigate({ to: '/' })
 	}
 
+	const handleAccount = async () => {
+		navigate({ to: '/app/account' })
+	}
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -85,7 +89,7 @@ export function NavUser() {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem>
+					<DropdownMenuItem onClick={handleAccount}>
 						<UserCircleIcon className='mr-2 h-4 w-4' />
 						Account
 					</DropdownMenuItem>

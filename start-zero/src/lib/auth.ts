@@ -60,7 +60,7 @@ export const auth = betterAuth({
 		},
 	},
 
-	// to do: add confirmation step during delete flow
+	// to do: add additional verification step during delete flow
 	// https://www.better-auth.com/docs/concepts/users-accounts#adding-verification-before-deletion
 
 	user: {
@@ -81,7 +81,6 @@ export const auth = betterAuth({
 				ctx.path.startsWith('/sign-in') ||
 				ctx.path.startsWith('/callback')
 			) {
-				console.log('🔥 after‐hook fired, ctx.path=', ctx.path)
 				const u = ctx.context.newSession?.user
 				if (u) await syncUserToZero(u) // fire-and-forget
 			}

@@ -18,7 +18,7 @@ const StackItem = ({
 		href={url}
 		target='_blank'
 		rel='noopener noreferrer'
-		className='flex flex-col transition-transform px-12 py-8 border border-border items-start -ml-[1px] first:ml-0 hover:relative hover:z-10 hover:border-primary/80 text-pretty hover:bg-secondary/20 group'
+		className='flex flex-col transition-transform lg:px-12 lg:py-8 px-6 py-4 border border-border items-start -m-[0.5px] hover:relative hover:z-10 hover:border-primary/80 text-pretty hover:bg-secondary/20 group min-w-80'
 	>
 		<div className='flex items-center justify-center w-full'>
 			<h3 className='transition-transform duration-200 font-medium group-hover:translate-x-[-4px] will-change-transform'>
@@ -28,7 +28,7 @@ const StackItem = ({
 				→
 			</span>
 		</div>
-		<p className='text-muted-foreground text-sm w-full text-center'>
+		<p className='text-muted-foreground text-sm w-full text-center text-balance'>
 			{description}
 		</p>
 	</a>
@@ -72,7 +72,7 @@ const LandingPage = () => {
 					<p className='text-center text-muted-foreground mb-4 text-xl'>
 						A starter template for fast web apps.
 					</p>
-					<div className='flex mt-12'>
+					<div className='flex mt-12 flex-wrap items-center justify-center'>
 						{stacks.map((stack) => (
 							<StackItem
 								key={stack.name}

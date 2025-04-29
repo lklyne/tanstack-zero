@@ -1,8 +1,9 @@
 import type { ZeroSchema } from '@/db/schema.zero'
-import { authClient, signOut } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth-client'
 import { useQuery, useZero } from '@rocicorp/zero/react'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
+
 import { AccountDelete } from './account-delete'
 import { Button } from './ui/button'
 
@@ -26,24 +27,6 @@ const AccountOverview = () => {
 		setTimeout(() => setIsSubscriptionLoading(false), 1000) // Simulate loading
 	}
 
-	const handleLogout = () => {
-		signOut()
-		// Add navigation logic if needed, e.g., navigate('/')
-	}
-
-	const deleteUser = async () => {
-		if (
-			!window.confirm(
-				'Are you sure you want to delete your account? This cannot be undone.',
-			)
-		) {
-			return
-		}
-		console.log('Deleting user...')
-		// Add actual deletion logic here, including Zero DB deletion if integrated
-		handleLogout() // Logout after deletion attempt
-	}
-
 	return (
 		<div className='m-4'>
 			{isPending && <p>Loading account data...</p>}
@@ -53,10 +36,7 @@ const AccountOverview = () => {
 				<div className='space-y-4'>
 					<div className='flex flex-col border bg-background'>
 						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
-							<h2 className='font-medium text-sm'>Zero Database</h2>
-							<span className='px-2 py-0.5 bg-pink-50/50 text-pink-800 rounded border border-pink-200 dark:bg-pink-950/40 dark:text-pink-50 dark:border-pink-900 text-sm'>
-								Zero
-							</span>
+							<h2 className='font-medium text-sm'>Profile Information</h2>
 						</div>
 						<div className='p-4'>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -65,64 +45,18 @@ const AccountOverview = () => {
 									<p className='text-sm'>{zeroUser?.name || 'Not available'}</p>
 								</div>
 								<div>
-									<p className='text-sm text-muted-foreground'>User ID</p>
-									<p className='text-sm'>{zeroUser?.id || 'Not available'}</p>
-								</div>
-								<div>
 									<p className='text-sm text-muted-foreground'>Email</p>
 									<p className='text-sm'>
 										{zeroUser?.email || 'Not available'}
 									</p>
 								</div>
-								<div>
-									<p className='text-sm text-muted-foreground'>Zero DB Plan</p>
-									<p className='text-sm'>{'Plan Placeholder'}</p>
-								</div>
 							</div>
 						</div>
 					</div>
 
 					<div className='flex flex-col border bg-background'>
 						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
-							<h2 className='font-medium text-sm'>Authentication</h2>
-							<span className='px-2 py-0.5 bg-blue-50/50 text-blue-800 rounded border border-blue-200 dark:bg-blue-950/40 dark:text-blue-50 dark:border-blue-900 text-sm'>
-								Better Auth
-							</span>
-						</div>
-						<div className='p-4'>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<div>
-									<p className='text-sm text-muted-foreground'>Name</p>
-									<p className='text-sm'>{data.user.name || 'Not available'}</p>
-								</div>
-								<div>
-									<p className='text-sm text-muted-foreground'>User ID</p>
-									<p className='text-sm'>{data.user.id}</p>
-								</div>
-								<div>
-									<p className='text-sm text-muted-foreground'>Email</p>
-									<p className='text-sm'>
-										{data.user.email || 'Not available'}
-									</p>
-								</div>
-								<div>
-									<p className='text-sm text-muted-foreground'>
-										Email Verified
-									</p>
-									<p className='text-sm'>
-										{data.user.emailVerified ? 'Yes' : 'No'}
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div className='flex flex-col border bg-background'>
-						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
-							<h2 className='font-medium text-sm'>Subscription</h2>
-							<span className='px-2 py-0.5 bg-green-50/50 text-green-800 rounded border border-green-200 dark:bg-green-950/40 dark:text-green-50 dark:border-green-900 text-sm'>
-								Polar
-							</span>
+							<h2 className='font-medium text-sm'>Billing</h2>
 						</div>
 						<div className='p-4'>
 							<div className='space-y-6'>
@@ -162,9 +96,6 @@ const AccountOverview = () => {
 					<div className='flex flex-col border bg-background'>
 						<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
 							<h2 className='font-medium text-sm'>Danger Zone</h2>
-							<span className='px-2 py-0.5 bg-red-50/50 text-red-800 rounded border border-red-200 dark:bg-red-950/40 dark:text-red-50 dark:border-red-900 text-sm'>
-								Destructive Actions
-							</span>
 						</div>
 						<div className='p-4'>
 							<div className='space-y-4'>

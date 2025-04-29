@@ -89,20 +89,20 @@ function PersonList({ view }: { view: 'json' | 'table' }) {
 							<span className='font-medium text-sm text-stone-700 group-hover:text-stone-950'>
 								{person.name}
 							</span>
-							<div className='flex items-center gap-2'>
+							<div className='flex items-end gap-2'>
 								<span className='text-sm text-muted-foreground w-auto'>
 									{person.id}
 								</span>
-							</div>
-							<div className='pr-2 flex items-center'>
-								<Button
-									onClick={() => z.mutate.persons.delete({ id: person.id })}
-									variant='ghost'
-									size='sm'
-									className='opacity-0 group-hover:opacity-100 transition-opacity'
-								>
-									<X className='w-4 h-4' />
-								</Button>
+								<div className='pr-2 flex items-center'>
+									<Button
+										onClick={() => z.mutate.persons.delete({ id: person.id })}
+										variant='ghost'
+										size='sm'
+										className='opacity-0 group-hover:opacity-100 transition-opacity'
+									>
+										<X className='w-4 h-4' />
+									</Button>
+								</div>
 							</div>
 						</Link>
 					</div>
