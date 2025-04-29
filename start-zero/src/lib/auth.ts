@@ -1,5 +1,6 @@
 import { authDb } from '@/db/auth-db'
 import * as authSchema from '@/db/auth-schema'
+import { deleteUserFromZero } from '@/lib/delete-user-from-zero'
 import { syncUserToZero } from '@/lib/sync-user-to-zero'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
@@ -59,10 +60,22 @@ export const auth = betterAuth({
 		},
 	},
 
+	// to do: add confirmation step during delete flow
+	// https://www.better-auth.com/docs/concepts/users-accounts#adding-verification-before-deletion
+
+	user: {
+		deleteUser: {
+			enabled: true,
+			beforeDelete: async (user) => {
+				// Delete user data from Zero before removing auth record
+				await deleteUserFromZero(user.id)
+			},
+		},
+	},
+
 	hooks: {
+		// middleware to sync user to Zero after sign-in
 		after: createAuthMiddleware(async (ctx) => {
-			// console.log('🔥 after‐hook fired, ctx.path=', ctx.path)
-			// Runs for *all* auth endpoints
 			if (
 				ctx.path.startsWith('/sign-up') ||
 				ctx.path.startsWith('/sign-in') ||

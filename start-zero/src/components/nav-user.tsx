@@ -2,7 +2,7 @@ import {
 	BugIcon,
 	CreditCardIcon,
 	LogOutIcon,
-	// MoreVerticalIcon,
+	MoreVerticalIcon,
 	UserCircleIcon,
 } from 'lucide-react'
 
@@ -39,18 +39,17 @@ export function NavUser() {
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
-					size='icon'
 					variant='outline'
-					className='h-6 w-6 rounded-md p-0'
+					className='rounded-md px-2 py-2 w-full h-auto'
 				>
-					<Avatar className='h-6 w-6 rounded-sm text-sm'>
+					<Avatar className='h-8 w-8 rounded-sm text-sm mr-2'>
 						<AvatarImage src={user.image || ''} alt={user.name || ''} />
 						<AvatarFallback className='rounded-md'>
 							{user.name?.slice(0, 2)?.toUpperCase() || 'UN'}
 						</AvatarFallback>
 					</Avatar>
 
-					{/* <div className='grid flex-1 text-left text-sm leading-tight'>
+					<div className='grid flex-1 text-left text-sm leading-tight'>
 						<span className='truncate font-medium'>
 							{user.name || 'Unknown'}
 						</span>
@@ -58,7 +57,7 @@ export function NavUser() {
 							{user.email}
 						</span>
 					</div>
-					<MoreVerticalIcon className='ml-auto size-4' /> */}
+					<MoreVerticalIcon className='ml-auto size-4' />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent

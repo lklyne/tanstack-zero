@@ -1,7 +1,12 @@
-import { signOut } from '@/lib/auth-client'
+import { authClient, signOut } from '@/lib/auth-client'
+import { useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
 import { Button } from './ui/button'
 
 export function AccountDelete() {
+	const [isDeleting, setIsDeleting] = useState(false)
+	const navigate = useNavigate()
+
 	const deleteUser = async () => {
 		if (
 			!window.confirm(
@@ -10,14 +15,38 @@ export function AccountDelete() {
 		) {
 			return
 		}
-		console.log('Deleting user...')
-		// Add actual deletion logic here, including Zero DB deletion if integrated
-		signOut() // Logout after deletion attempt
+
+		try {
+			setIsDeleting(true)
+			console.log('Deleting user...')
+
+			// Call Better Auth's deleteUser method
+			// This will trigger the beforeDelete hook we set up
+			// which will delete the user from Zero
+			await authClient.deleteUser()
+
+			// The user should be automatically signed out by Better Auth
+			// but we can call signOut just to be sure
+			await signOut()
+
+			// Navigate to home page after successful deletion
+			navigate({ to: '/' })
+		} catch (error) {
+			console.error('Failed to delete account:', error)
+			alert('Failed to delete your account. Please try again.')
+		} finally {
+			setIsDeleting(false)
+		}
 	}
 
 	return (
-		<Button variant='destructive' onClick={deleteUser} size='sm'>
-			Delete Account
+		<Button
+			variant='destructive'
+			onClick={deleteUser}
+			size='sm'
+			disabled={isDeleting}
+		>
+			{isDeleting ? 'Deleting...' : 'Delete Account'}
 		</Button>
 	)
 }

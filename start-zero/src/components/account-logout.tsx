@@ -12,7 +12,7 @@ export function AccountLogout() {
 	}
 
 	return (
-		<Button variant='outline' onClick={handleLogout} size='sm' className='px-2'>
+		<Button variant='outline' onClick={handleLogout} size='xs' className='px-2'>
 			<LogOutIcon className='h-4 w-4' />
 			Log Out
 		</Button>

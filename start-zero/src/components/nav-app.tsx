@@ -6,7 +6,9 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { Link } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
+import React from 'react'
 
 interface NavAppProps {
 	title?: string
@@ -26,13 +28,22 @@ const NavApp = ({ title, breadcrumbs, children }: NavAppProps) => {
 				<Breadcrumb>
 					<BreadcrumbList>
 						{breadcrumbs.items.map((item, i) => (
-							<BreadcrumbItem key={`${item.label}-${item.href || 'current'}`}>
-								{i === breadcrumbs.items.length - 1 ? (
-									<BreadcrumbPage>{item.label}</BreadcrumbPage>
-								) : (
-									<BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+							<React.Fragment key={`${item.label}-${item.href || 'current'}`}>
+								<BreadcrumbItem>
+									{i === breadcrumbs.items.length - 1 ? (
+										<BreadcrumbPage>{item.label}</BreadcrumbPage>
+									) : (
+										<BreadcrumbLink asChild>
+											<Link to={item.href}>{item.label}</Link>
+										</BreadcrumbLink>
+									)}
+								</BreadcrumbItem>
+								{i < breadcrumbs.items.length - 1 && (
+									<BreadcrumbSeparator>
+										<ChevronRight className='h-4 w-4' />
+									</BreadcrumbSeparator>
 								)}
-							</BreadcrumbItem>
+							</React.Fragment>
 						))}
 					</BreadcrumbList>
 				</Breadcrumb>
