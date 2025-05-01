@@ -47,6 +47,13 @@ export const auth = betterAuth({
 		}),
 	],
 
+	session: {
+		cookieCache: {
+			enabled: true,
+			maxAge: 5 * 60, // Cache duration in seconds (5 minutes)
+		},
+	},
+
 	emailAndPassword: {
 		enabled: true,
 		minPasswordLength: 2,
@@ -76,6 +83,10 @@ export const auth = betterAuth({
 	hooks: {
 		// middleware to sync user to Zero after sign-in
 		after: createAuthMiddleware(async (ctx) => {
+			console.log(
+				'🔄 Syncing auth user to Zero DB:',
+				ctx.context.newSession?.user.id,
+			)
 			if (
 				ctx.path.startsWith('/sign-up') ||
 				ctx.path.startsWith('/sign-in') ||

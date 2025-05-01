@@ -6,9 +6,8 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useZero } from '@/lib/zero'
 import { faker } from '@faker-js/faker'
-import { useQuery } from '@rocicorp/zero/react'
+import { useQuery, useZero } from '@rocicorp/zero/react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { FileJson2, ListX, Plus, Table, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
@@ -51,13 +50,7 @@ const useRapidFire = (callback: () => void, delay = 500) => {
 
 export const Route = createFileRoute('/_authed/app/_layout/')({
 	component: RouteComponent,
-	loader: async ({ context }) => {
-		// preload
-		const z = await context.z
-		if (z) {
-			z.query.persons.preload()
-		}
-	},
+	ssr: false,
 })
 
 function PersonList({ view }: { view: 'json' | 'table' }) {

@@ -36,3 +36,5 @@ export function createMutators(
 		},
 	}
 }
+
+export type Mutators = ReturnType<typeof createMutators>
