@@ -1,4 +1,5 @@
 import { authClient, signOut } from '@/lib/auth-client'
+import { clearJwt } from '@/lib/jwt'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Button } from './ui/button'
@@ -24,6 +25,9 @@ export function AccountDelete() {
 			// This will trigger the beforeDelete hook we set up
 			// which will delete the user from Zero
 			await authClient.deleteUser()
+
+			// Clear the JWT from both localStorage and cookies
+			clearJwt()
 
 			// The user should be automatically signed out by Better Auth
 			// but we can call signOut just to be sure

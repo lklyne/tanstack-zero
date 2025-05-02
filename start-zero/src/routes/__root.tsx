@@ -6,7 +6,7 @@ import {
 	Scripts,
 	createRootRoute,
 } from '@tanstack/react-router'
-// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 // Import CSS as a URL
 import appCss from '@/styles.css?url'
@@ -44,7 +44,7 @@ export const Route = createRootRoute({
 		<>
 			<RootDocument>
 				<Outlet />
-				{/* <TanStackRouterDevtools /> */}
+				<TanStackRouterDevtools position='bottom-right' />
 			</RootDocument>
 		</>
 	),

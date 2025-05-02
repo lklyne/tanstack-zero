@@ -1,12 +1,14 @@
 import { authDb } from '@/db/auth-db'
 import * as authSchema from '@/db/auth-schema'
 import { deleteUserFromZero } from '@/lib/delete-user-from-zero'
-import { syncUserToZero } from '@/lib/sync-user-to-zero'
+import { sql } from '@/routes/api/push'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { jwt } from 'better-auth/plugins'
 import { createAuthMiddleware } from 'better-auth/plugins'
+import type { User } from 'better-auth/types'
 import * as dotenv from 'dotenv'
+import type { TransactionSql } from 'postgres'
 
 dotenv.config()
 
@@ -22,7 +24,6 @@ for (const envVar of requiredEnvVars) {
 	}
 }
 
-// After the check above, we know these exist
 const secret = process.env.BETTER_AUTH_SECRET
 const origin = process.env.BETTER_AUTH_URL
 
@@ -83,17 +84,33 @@ export const auth = betterAuth({
 	hooks: {
 		// middleware to sync user to Zero after sign-in
 		after: createAuthMiddleware(async (ctx) => {
-			console.log(
-				'🔄 Syncing auth user to Zero DB:',
-				ctx.context.newSession?.user.id,
-			)
-			if (
-				ctx.path.startsWith('/sign-up') ||
-				ctx.path.startsWith('/sign-in') ||
-				ctx.path.startsWith('/callback')
-			) {
-				const u = ctx.context.newSession?.user
-				if (u) await syncUserToZero(u) // fire-and-forget
+			const returned = ctx.context.returned as { user?: User }
+			const u = returned.user
+			if (!u) return
+
+			console.log('🟦 🟦 🟦after hook runs')
+
+			// Skip the processor.process() complexity
+			try {
+				// Get a database connection
+				if (!sql) {
+					console.error('Database client not initialized')
+					return
+				}
+
+				// Use SQL transaction directly
+				await sql.begin(async (tx: TransactionSql<Record<string, unknown>>) => {
+					// Direct SQL upsert instead of using server transaction
+					await tx`
+						INSERT INTO users (id, email, name)
+						VALUES (${u.id}, ${u.email ?? ''}, ${u.name ?? ''})
+						ON CONFLICT (id) DO NOTHING
+					`
+				})
+
+				console.log('✅ User synced to Zero DB:', u.id)
+			} catch (error) {
+				console.error('Failed to sync user to Zero:', error)
 			}
 		}),
 	},

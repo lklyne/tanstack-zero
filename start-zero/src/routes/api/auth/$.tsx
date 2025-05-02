@@ -5,15 +5,15 @@ import { createAPIFileRoute } from '@tanstack/react-start/api'
 export const APIRoute = createAPIFileRoute('/api/auth/$')({
 	GET: async ({ request }) => {
 		try {
-			console.log('🔐 Auth GET request:', request.url)
+			// console.log('🔐 Auth GET request:', request.url)
 			const response = await auth.handler(request)
-			console.log('🔓 Auth response:', {
-				status: response.status,
-				headers: Object.fromEntries(response.headers.entries()),
-			})
+			// console.log('🔓 Auth response:', {
+			// 	status: response.status,
+			// 	headers: Object.fromEntries(response.headers.entries()),
+			// })
 			return response
 		} catch (error) {
-			console.error('🔥 Auth error:', error)
+			// console.error('🔥 Auth error:', error)
 			return new Response(JSON.stringify({ error: 'Auth handler failed' }), {
 				status: 500,
 				headers: { 'Content-Type': 'application/json' },
@@ -22,15 +22,15 @@ export const APIRoute = createAPIFileRoute('/api/auth/$')({
 	},
 	POST: async ({ request }) => {
 		try {
-			console.log('🔐 Auth POST request:', request.url)
+			// console.log('🔐 Auth POST request:', request.url)
 			const response = await auth.handler(request)
-			console.log('🔓 Auth response:', {
-				status: response.status,
-				headers: Object.fromEntries(response.headers.entries()),
-			})
+			// console.log('🔓 Auth response:', {
+			// 	status: response.status,
+			// 	headers: Object.fromEntries(response.headers.entries()),
+			// })
 			return response
 		} catch (error) {
-			console.error('🔥 Auth error:', error)
+			// console.error('🔥 Auth error:', error)
 			return new Response(JSON.stringify({ error: 'Auth handler failed' }), {
 				status: 500,
 				headers: { 'Content-Type': 'application/json' },

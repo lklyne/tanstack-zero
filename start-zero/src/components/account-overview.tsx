@@ -17,8 +17,6 @@ const AccountOverview = () => {
 		z.query.users.where('id', data?.user?.id || '').one(),
 	)
 
-	console.log('zeroUser', zeroUser)
-
 	// Placeholder functions, adapt as needed
 	const refetchSubscription = () => {
 		console.log('Refetching subscription...')

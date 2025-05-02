@@ -1,8 +1,8 @@
 import { schema } from '@/db/schema.zero'
 import type { AuthData, ZeroSchema } from '@/db/schema.zero'
 import { Atom } from '@/lib/atom'
-import { clearJwt, getJwt, getRawJwt } from '@/lib/jwt'
-import { type Mutators, createMutators } from '@/mutators/shared'
+import { clearJwt } from '@/lib/jwt'
+import { type Mutators, createMutators } from '@/mutators/client'
 import { Zero } from '@rocicorp/zero'
 import { CACHE_FOREVER } from './query-cache-policy'
 
@@ -14,29 +14,37 @@ export type LoginState = {
 const zeroAtom = new Atom<Zero<ZeroSchema, Mutators>>()
 const authAtom = new Atom<LoginState>()
 
-// Initialize auth state from cookie
-const rawJwt = getRawJwt()
-const decodedJwt = getJwt()
-authAtom.value =
-	rawJwt && decodedJwt ? { encoded: rawJwt, decoded: decodedJwt } : undefined
-
-console.log(authAtom.value)
-
 let didPreload = false
+
+// Track the last-processed encoded token to avoid unnecessary Zero restarts
+let _prevEncoded: string | undefined
 
 export function preload(z: Zero<ZeroSchema, Mutators>) {
 	if (didPreload) {
 		return
 	}
+	console.log('🟦 preload runs')
 	didPreload = true
 
 	// Preload all users and persons with CACHE_FOREVER policy
-	z.query.users.preload(CACHE_FOREVER)
+	// z.query.users.preload(CACHE_FOREVER)
 	z.query.persons.preload(CACHE_FOREVER)
 }
 
 // Re-create Zero whenever auth changes
 authAtom.onChange((auth) => {
+	// Skip until we actually have real auth data
+	console.log('🟦 authAtom.onChange runs')
+	if (!auth) {
+		return
+	}
+	// Only recreate Zero if the encoded JWT actually changed
+	const newEncoded = auth?.encoded
+	if (newEncoded === _prevEncoded) {
+		return
+	}
+	_prevEncoded = newEncoded
+
 	// Close existing instance if any
 	zeroAtom.value?.close()
 	console.log('🟪 Creating new Zero instance')
@@ -55,6 +63,7 @@ authAtom.onChange((auth) => {
 	const zero = new Zero<ZeroSchema, Mutators>({
 		schema,
 		server,
+		logLevel: 'info',
 		userID: authData?.sub ?? 'anon',
 		mutators: createMutators(authData ?? { sub: null }),
 		auth: (error?: 'invalid-token') => {

@@ -6,47 +6,12 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
+import useRapidFire from '@/hooks/use-rapid-fire'
 import { faker } from '@faker-js/faker'
 import { useQuery, useZero } from '@rocicorp/zero/react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { FileJson2, ListX, Plus, Table, X } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
-
-const useRapidFire = (callback: () => void, delay = 500) => {
-	const [isPressed, setIsPressed] = useState(false)
-
-	useEffect(() => {
-		let timeout: NodeJS.Timeout
-		let interval: NodeJS.Timeout
-
-		if (isPressed) {
-			// Initial delay before rapid fire starts
-			timeout = setTimeout(() => {
-				// Start rapid fire
-				interval = setInterval(callback, 1)
-			}, delay)
-		}
-
-		return () => {
-			clearTimeout(timeout)
-			clearInterval(interval)
-		}
-	}, [isPressed, callback, delay])
-
-	return {
-		onMouseDown: () => {
-			callback() // Immediate first action
-			setIsPressed(true)
-		},
-		onMouseUp: () => setIsPressed(false),
-		onMouseLeave: () => setIsPressed(false),
-		onTouchStart: () => {
-			callback() // Immediate first action
-			setIsPressed(true)
-		},
-		onTouchEnd: () => setIsPressed(false),
-	}
-}
+import { useCallback, useState } from 'react'
 
 export const Route = createFileRoute('/_authed/app/_layout/')({
 	component: RouteComponent,
@@ -125,17 +90,17 @@ function RouteComponent() {
 	}, [z.mutate.persons])
 
 	const clearAll = useCallback(() => {
-		if (persons) {
-			for (const person of persons) {
-				z.mutate.persons.delete({ id: person.id })
-			}
+		if (persons && persons.length > 0) {
+			const ids = persons.map((p) => p.id)
+			// @ts-expect-error - TODO: fix custom types
+			z.mutate.persons.deleteMany({ ids })
 		}
 	}, [persons, z.mutate.persons])
 
 	const rapidAddHandlers = useRapidFire(addPerson)
 
 	return (
-		<div className='container flex flex-col h-full overflow-y-auto'>
+		<div className='flex flex-col h-full overflow-y-auto w-full'>
 			<AppNav title='Zero Mutations'>
 				<div className='flex gap-2'>
 					<Button

@@ -136,3 +136,5 @@ function parseSub(jwt: string): string | null {
 		return null
 	}
 }
+
+export { processor, sql }
