@@ -33,7 +33,7 @@ bun dev
 ## Schema workflow
 
 - Edit your Drizzle schema in `src/db/schema.ts`.
-- Update your Zero schema in `src/db/schema.zero.ts`.
+- Run `bun db:zero:generate` to update your Zero schema.
 - Run `bun db:generate` to scaffold a migration.
 - Apply with `bun db:migrate` (or `bun db:push` to force-sync).
 - Restart Zero cache (`bun zero-cache`).

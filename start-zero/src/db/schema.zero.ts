@@ -1,3 +1,4 @@
+import { schema as zeroSchema } from '@/db/zero-schema.gen'
 // https://github.com/BriefHQ/drizzle-zero
 import {
 	ANYONE_CAN,
@@ -8,32 +9,12 @@ import {
 	// type Schema,
 	definePermissions,
 } from '@rocicorp/zero'
-import { createZeroSchema } from 'drizzle-zero'
-import * as drizzleSchema from './schema'
+// import * as drizzleSchema from './schema'
 
 // AuthData is the JWT sub claim plus the users row (email & name)
 export type AuthData = { sub: User['id'] | null } & Partial<
 	Pick<User, 'email' | 'name'>
 >
-
-export const zeroSchema = createZeroSchema(drizzleSchema, {
-	// version: 1,
-	// Specify which tables and columns to include in the Zero schema.
-	// This allows for the "expand/migrate/contract" pattern recommended in the Zero docs.
-	// When a column is first added, it should be set to false, and then changed to true
-	// once the migration has been run.
-	tables: {
-		persons: {
-			id: true,
-			name: true,
-		},
-		users: {
-			id: true,
-			email: true,
-			name: true,
-		},
-	},
-})
 
 // Must export `schema`
 export const schema = zeroSchema
