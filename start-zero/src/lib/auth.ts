@@ -1,11 +1,9 @@
 import { authDb } from '@/db/auth-db'
 import * as authSchema from '@/db/auth-schema'
 import { deleteUserFromZero } from '@/lib/delete-user-from-zero'
-import { syncUserToZero } from '@/lib/sync-user-to-zero'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { jwt } from 'better-auth/plugins'
-import { createAuthMiddleware } from 'better-auth/plugins'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -22,7 +20,6 @@ for (const envVar of requiredEnvVars) {
 	}
 }
 
-// After the check above, we know these exist
 const secret = process.env.BETTER_AUTH_SECRET
 const origin = process.env.BETTER_AUTH_URL
 
@@ -46,6 +43,13 @@ export const auth = betterAuth({
 			},
 		}),
 	],
+
+	session: {
+		cookieCache: {
+			enabled: true,
+			maxAge: 5 * 60, // Cache duration in seconds (5 minutes)
+		},
+	},
 
 	emailAndPassword: {
 		enabled: true,
@@ -71,19 +75,5 @@ export const auth = betterAuth({
 				await deleteUserFromZero(user.id)
 			},
 		},
-	},
-
-	hooks: {
-		// middleware to sync user to Zero after sign-in
-		after: createAuthMiddleware(async (ctx) => {
-			if (
-				ctx.path.startsWith('/sign-up') ||
-				ctx.path.startsWith('/sign-in') ||
-				ctx.path.startsWith('/callback')
-			) {
-				const u = ctx.context.newSession?.user
-				if (u) await syncUserToZero(u) // fire-and-forget
-			}
-		}),
 	},
 })

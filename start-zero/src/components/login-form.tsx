@@ -34,7 +34,6 @@ export function LoginForm({
 	className,
 	...props
 }: React.ComponentPropsWithoutRef<'div'>) {
-	const navigate = useNavigate()
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -43,19 +42,19 @@ export function LoginForm({
 		},
 	})
 
+	const navigate = useNavigate()
+
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		try {
 			// Use the imported signIn function directly
 			const { data, error } = await signIn.email({
 				email: values.email,
 				password: values.password,
-				callbackURL: '/app',
 			})
 
 			if (data) {
-				// Assuming successful login redirects or indicates success via status
 				// Redirect to dashboard or home page after successful login
-				// navigate({ to: '/' })
+				navigate({ to: '/' })
 			} else {
 				// Handle login failure - attempt to parse error message if available
 				let errorMessage = 'Invalid email or password'

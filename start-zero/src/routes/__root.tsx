@@ -1,34 +1,17 @@
 import { DefaultCatchBoundary } from '@/components/default-catch-boundry'
-import type { initZero } from '@/lib/zero'
 import type { ErrorComponentProps } from '@tanstack/react-router'
 import {
 	HeadContent,
 	Outlet,
 	Scripts,
-	createRootRouteWithContext,
+	createRootRoute,
 } from '@tanstack/react-router'
-// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 // Import CSS as a URL
 import appCss from '@/styles.css?url'
 
-// Import the server function from its dedicated file
-import { fetchAuthSession } from '@/lib/session.server'
-import type { Session } from 'better-auth' // Restore Session type import
-
-// Update the router context to include the session
-interface MyRouterContext {
-	z: ReturnType<typeof initZero> | undefined
-	session: Session | null // Restore session state
-}
-
-export const Route = createRootRouteWithContext<MyRouterContext>()({
-	// Restore the beforeLoad hook
-	beforeLoad: async () => {
-		const { session } = await fetchAuthSession()
-		// Return the session data to be added to the route context
-		return { session }
-	},
+export const Route = createRootRoute({
 	head: () => ({
 		meta: [
 			{
@@ -61,7 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		<>
 			<RootDocument>
 				<Outlet />
-				{/* <TanStackRouterDevtools /> */}
+				<TanStackRouterDevtools position='bottom-right' />
 			</RootDocument>
 		</>
 	),

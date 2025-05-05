@@ -1,10 +1,10 @@
 import AppNav from '@/components/nav-app'
-import { useZero } from '@/lib/zero'
-import { useQuery } from '@rocicorp/zero/react'
+import { useQuery, useZero } from '@rocicorp/zero/react'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authed/app/_layout/$personId')({
 	component: PersonComponent,
+	ssr: false,
 })
 
 function PersonComponent() {

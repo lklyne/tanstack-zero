@@ -1,7 +1,11 @@
 import { zeroSchema } from '@/db/schema.zero'
 import type { AuthData } from '@/db/schema.zero'
 import { createServerMutators } from '@/mutators/server'
-import { PushProcessor, connectionProvider } from '@rocicorp/zero/pg'
+import {
+	PostgresJSConnection,
+	PushProcessor,
+	ZQLDatabase,
+} from '@rocicorp/zero/pg'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 import postgres from 'postgres'
 
@@ -16,9 +20,10 @@ const sql = process.env.ZERO_UPSTREAM_DB
 	: null
 
 // Create a single PushProcessor instance at module scope
-const provider = sql ? connectionProvider(sql) : null
-const processor =
-	sql && provider ? new PushProcessor(zeroSchema, provider) : null
+const database = sql
+	? new ZQLDatabase(new PostgresJSConnection(sql), zeroSchema)
+	: null
+const processor = database ? new PushProcessor(database) : null
 
 // Count active connections for monitoring
 async function getConnectionCount() {
@@ -136,3 +141,5 @@ function parseSub(jwt: string): string | null {
 		return null
 	}
 }
+
+export { processor, sql }
