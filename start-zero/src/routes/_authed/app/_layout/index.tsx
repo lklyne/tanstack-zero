@@ -42,12 +42,12 @@ function PersonList({ view }: { view: 'json' | 'table' }) {
 						<Link
 							to='/app/$personId'
 							params={{ personId: person.id }}
-							className='flex grow items-center justify-between hover:bg-secondary/40 group pl-4 pr-2 py-2'
+							className='flex grow items-center justify-between hover:bg-secondary/40 group pl-4 pr-0 py-2'
 						>
 							<span className='font-medium text-sm text-stone-700 group-hover:text-stone-950'>
 								{person.name}
 							</span>
-							<div className='flex items-end gap-2'>
+							<div className='flex items-center gap-2'>
 								<span className='text-sm text-muted-foreground w-auto'>
 									{person.id}
 								</span>
