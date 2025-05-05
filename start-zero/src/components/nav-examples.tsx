@@ -1,7 +1,7 @@
 'use client'
 
 import { Link, useMatches } from '@tanstack/react-router'
-import { DatabaseZap, TreePalm, UserIcon } from 'lucide-react'
+import { DatabaseZap, TreePalm, UserIcon, Users } from 'lucide-react'
 
 import {
 	SidebarGroup,
@@ -17,6 +17,11 @@ const items = [
 		title: 'Zero Mutations',
 		url: '/app',
 		icon: DatabaseZap,
+	},
+	{
+		title: 'Zero Users',
+		url: '/app/users',
+		icon: Users,
 	},
 	{
 		title: 'Tanstack Examples',

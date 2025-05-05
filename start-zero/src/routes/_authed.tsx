@@ -10,9 +10,9 @@ import { useEffect } from 'react'
 export const Route = createFileRoute('/_authed')({
 	ssr: true,
 	loader: async ({ location }) => {
-		console.log('[_authed loader] incoming request to', location.href)
+		// console.log('[_authed loader] incoming request to', location.href)
 		const { session } = await fetchAuthSession()
-		console.log('[_authed loader] session', session)
+		// console.log('[_authed loader] session', session)
 
 		if (!session) {
 			throw redirect({ to: '/auth/login', search: { redirect: location.href } })
@@ -35,13 +35,13 @@ function AuthWrapper() {
 
 	// 3) On mount: first seed from localStorage, then re-validate with the server
 	useEffect(() => {
-		console.log('[AuthWrapper] mount – cached JWT:', getCachedJwt())
+		// console.log('[AuthWrapper] mount – cached JWT:', getCachedJwt())
 		const cached = getCachedJwt()
 		if (cached) {
 			const decoded = decodeAuthJwt(cached)
 			if (decoded) {
 				setAuthAtom(cached, decoded)
-				console.log('[AuthWrapper] setting authAtom:', { jwt: cached, decoded })
+				// console.log('[AuthWrapper] setting authAtom:', { jwt: cached, decoded })
 			}
 		}
 
@@ -50,7 +50,7 @@ function AuthWrapper() {
 				const decoded = decodeAuthJwt(jwt)
 				if (decoded) {
 					setAuthAtom(jwt, decoded)
-					console.log('[AuthWrapper] setting authAtom:', { jwt: jwt, decoded })
+					// console.log('[AuthWrapper] setting authAtom:', { jwt: jwt, decoded })
 				}
 			}
 		})

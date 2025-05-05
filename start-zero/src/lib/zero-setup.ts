@@ -23,18 +23,18 @@ export function preload(z: Zero<ZeroSchema, Mutators>) {
 	if (didPreload) {
 		return
 	}
-	console.log('🟦 preload runs')
+	// console.log('🟦 preload runs')
 	didPreload = true
 
 	// Preload all users and persons with CACHE_FOREVER policy
-	// z.query.users.preload(CACHE_FOREVER)
+	z.query.users.preload(CACHE_FOREVER)
 	z.query.persons.preload(CACHE_FOREVER)
 }
 
 // Re-create Zero whenever auth changes
 authAtom.onChange((auth) => {
 	// Skip until we actually have real auth data
-	console.log('🟦 authAtom.onChange runs')
+	// console.log('🟦 authAtom.onChange runs')
 	if (!auth) {
 		return
 	}
@@ -57,7 +57,7 @@ authAtom.onChange((auth) => {
 		)
 	}
 
-	console.log(auth?.decoded)
+	// console.log(auth?.decoded)
 
 	const authData = auth?.decoded
 	const zero = new Zero<ZeroSchema, Mutators>({
