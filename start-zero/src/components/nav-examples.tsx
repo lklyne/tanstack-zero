@@ -15,7 +15,7 @@ import {
 const items = [
 	{
 		title: 'Zero Mutations',
-		url: '/app',
+		url: '/app/zero-mutations',
 		icon: DatabaseZap,
 	},
 	{

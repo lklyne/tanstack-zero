@@ -25,7 +25,7 @@ function LandingPage() {
 		{
 			name: 'Polar',
 			url: 'https://polar.sh/',
-			description: 'Payments and subscriptions.',
+			description: 'Payments and subscriptions. (Planned)',
 		},
 	]
 

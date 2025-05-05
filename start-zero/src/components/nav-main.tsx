@@ -23,7 +23,7 @@ const HomePageHeader = () => {
 	return (
 		<nav className='w-full py-4 px-4 bg-background flex justify-between items-center border-b border-border text-base h-16'>
 			<Link
-				className='font-semibold text-sm flex items-center gap-2 p-1'
+				className='font-semibold text-sm flex items-center gap-2 p-1.5'
 				to='/'
 			>
 				<Logo />
