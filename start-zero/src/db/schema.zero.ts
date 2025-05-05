@@ -11,11 +11,10 @@ import {
 import { createZeroSchema } from 'drizzle-zero'
 import * as drizzleSchema from './schema'
 
-// Define AuthData type explicitly
-export interface AuthData {
-	sub: string | null // null for unauthenticated sessions
-	// Add other authentication-related fields as needed
-}
+// AuthData is the JWT sub claim plus the users row (email & name)
+export type AuthData = { sub: User['id'] | null } & Partial<
+	Pick<User, 'email' | 'name'>
+>
 
 export const zeroSchema = createZeroSchema(drizzleSchema, {
 	// version: 1,

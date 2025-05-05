@@ -63,7 +63,7 @@ authAtom.onChange((auth) => {
 	const zero = new Zero<ZeroSchema, Mutators>({
 		schema,
 		server,
-		logLevel: 'info',
+		logLevel: 'error',
 		userID: authData?.sub ?? 'anon',
 		mutators: createMutators(authData ?? { sub: null }),
 		auth: (error?: 'invalid-token') => {
