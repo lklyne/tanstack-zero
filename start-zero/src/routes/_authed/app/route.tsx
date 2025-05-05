@@ -3,7 +3,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { zeroAtom } from '@/lib/zero-setup'
 import { authAtom } from '@/lib/zero-setup'
 import { ZeroProvider } from '@rocicorp/zero/react'
-import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { useSyncExternalStore } from 'react'
 import { useEffect } from 'react'
 import { Suspense } from 'react'
@@ -11,13 +11,6 @@ import { Suspense } from 'react'
 export const Route = createFileRoute('/_authed/app')({
 	component: RouteComponent,
 	ssr: false,
-	loader: ({ context, location }) => {
-		// Check if we're exactly at /app and redirect
-		if (location.pathname === '/app' || location.pathname === '/app/') {
-			throw redirect({ to: '/app/zero-mutations' })
-		}
-		return null
-	},
 })
 
 function AppContent() {
