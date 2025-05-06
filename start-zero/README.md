@@ -29,6 +29,8 @@ bun dev
 - Drizzle
 - Shadcn
 - Biome
+- React Email
+- Resend
 
 ## Schema workflow
 
@@ -38,3 +40,10 @@ bun dev
 - Apply with `bun db:migrate` (or `bun db:push` to force-sync).
 - Restart Zero cache (`bun zero-cache`).
 - Restart your dev server (`bun dev`).
+
+## Email workflow
+
+- Edit your React Email templates in `src/emails`.
+- Run `bun email:dev` to start the email server.
+- Run `bun email:export` to export the emails.
+- Run `bun email:send` to send an email.
