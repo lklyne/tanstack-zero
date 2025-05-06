@@ -1,4 +1,4 @@
-import { zeroSchema } from '@/db/schema.zero'
+import { schema } from '@/db/schema.zero'
 import type { AuthData } from '@/db/schema.zero'
 import { createServerMutators } from '@/mutators/server'
 import {
@@ -21,7 +21,7 @@ const sql = process.env.ZERO_UPSTREAM_DB
 
 // Create a single PushProcessor instance at module scope
 const database = sql
-	? new ZQLDatabase(new PostgresJSConnection(sql), zeroSchema)
+	? new ZQLDatabase(new PostgresJSConnection(sql), schema)
 	: null
 const processor = database ? new PushProcessor(database) : null
 
