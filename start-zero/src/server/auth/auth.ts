@@ -1,6 +1,6 @@
-import { authDb } from '@/db/auth-db'
-import * as authSchema from '@/db/auth-schema'
 import { deleteUserFromZero } from '@/lib/delete-user-from-zero'
+import { authDb } from '@/server/db/auth-db'
+import * as authSchema from '@/server/db/auth-schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { jwt } from 'better-auth/plugins'

@@ -14,7 +14,7 @@
     "db:studio": "drizzle-kit studio --config drizzle.config.ts",
     "auth:studio": "drizzle-kit studio --config auth-drizzle.config.ts",
     "db:up": "docker compose -p start_zero -f docker/docker-compose.yml up --remove-orphans",
-    "db:zero:generate": "drizzle-zero generate --format --output src/db/zero-schema.gen.ts",
+    "db:zero:generate": "drizzle-zero generate --format --output src/server/db/zero-schema.gen.ts",
     "dev": "vinxi dev",
     "format": "biome format",
     "lint": "biome lint",
@@ -23,13 +23,14 @@
     "start": "vinxi start",
     "test": "vitest run",
     "update-packages": "bunx taze -I --recursive",
-    "zero-cache": "source .env && zero-cache-dev -p src/db/zero-schema.gen.ts --log-level debug",
+    "zero-cache": "source .env && zero-cache-dev -p src/server/db/index.ts --log-level debug",
     "db:auth:generate": "drizzle-kit generate --config drizzle.config.auth.ts",
     "db:auth:push": "drizzle-kit push --config drizzle.config.auth.ts",
     "db:auth:migrate": "drizzle-kit migrate --config drizzle.config.auth.ts",
     "db:auth:studio": "drizzle-kit studio --config drizzle.config.auth.ts",
     "email:dev": "bunx react-email dev --dir src/emails --port 3883",
-    "email:export": "bunx react-email export --dir src/emails"
+    "email:export": "bunx react-email export --dir src/emails",
+    "postinstall": "bun db:zero:generate"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

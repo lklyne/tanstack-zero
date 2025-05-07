@@ -1,8 +1,8 @@
-import { schema } from '@/db/schema.zero'
-import type { AuthData, ZeroSchema } from '@/db/schema.zero'
 import { Atom } from '@/lib/atom'
-import { clearJwt } from '@/lib/jwt'
 import { type Mutators, createMutators } from '@/mutators/client'
+import { clearJwt } from '@/server/auth/jwt'
+import type { AuthData, ZeroSchema } from '@/server/db/zero-permissions'
+import { schema } from '@/server/db/zero-schema.gen'
 import { Zero } from '@rocicorp/zero'
 import { CACHE_FOREVER } from './query-cache-policy'
 

@@ -1,12 +1,5 @@
 import NavApp from '@/components/nav-app'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -23,8 +16,8 @@ import type {
 	NotificationEmailData,
 	WelcomeEmailData,
 } from '@/lib/email-client'
-import { IconCheck, IconExclamationCircle } from '@tabler/icons-react'
 import { createFileRoute } from '@tanstack/react-router'
+import { Check, CircleAlert } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -105,202 +98,193 @@ function EmailPreview() {
 	return (
 		<div className='container flex flex-col h-full overflow-y-auto'>
 			<NavApp title='Email Preview & Testing' />
-			<div className='flex flex-col grow overflow-y-auto'>
+			<div className='flex flex-col grow overflow-y-auto p-4'>
 				<div className='flex flex-col gap-8'>
 					<div className='flex flex-col gap-4 max-w-2xl'>
-						<Card>
-							<CardHeader>
-								<CardTitle>Email Configuration</CardTitle>
-								<CardDescription>
-									Configure and send a test email
-								</CardDescription>
-							</CardHeader>
-							<CardContent>
-								<div className='space-y-4'>
-									<div className='space-y-2'>
-										<Label htmlFor='recipient'>Recipient Email</Label>
-										<Input
-											id='recipient'
-											placeholder='recipient@example.com'
-											value={emailState.to}
-											onChange={(e) =>
-												setEmailState((prev) => ({
-													...prev,
-													to: e.target.value,
-												}))
-											}
-										/>
-									</div>
-
-									<div className='space-y-2'>
-										<Label htmlFor='subject'>Subject</Label>
-										<Input
-											id='subject'
-											placeholder='Welcome to our platform'
-											value={emailState.subject}
-											onChange={(e) =>
-												setEmailState((prev) => ({
-													...prev,
-													subject: e.target.value,
-												}))
-											}
-										/>
-									</div>
-
-									<div className='space-y-2'>
-										<Label htmlFor='template'>Email Template</Label>
-										<Select
-											value={templateName}
-											onValueChange={(value) =>
-												setTemplateName(value as EmailTemplateName)
-											}
-										>
-											<SelectTrigger id='template'>
-												<SelectValue placeholder='Select a template' />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value='welcome'>Welcome Email</SelectItem>
-												<SelectItem value='notification'>
-													Notification
-												</SelectItem>
-											</SelectContent>
-										</Select>
-									</div>
-
-									<div className='pt-4'>
-										<Button
-											onClick={handleSendEmail}
-											disabled={
-												emailState.loading ||
-												!emailState.to ||
-												!emailState.subject
-											}
-											className='w-full'
-										>
-											{emailState.loading ? 'Sending...' : 'Send Test Email'}
-										</Button>
-									</div>
-
-									{emailState.success && (
-										<div className='flex items-center text-green-500 mt-2'>
-											<IconCheck size={16} className='mr-1' />
-											<span>Email sent successfully!</span>
-										</div>
-									)}
-
-									{emailState.error && (
-										<div className='flex items-center text-red-500 mt-2'>
-											<IconExclamationCircle size={16} className='mr-1' />
-											<span>{emailState.error}</span>
-										</div>
-									)}
+						<div className='border rounded-lg bg-background p-4'>
+							<h2 className='text-base font-medium mb-2'>
+								Email Configuration
+							</h2>
+							<p className='text-sm text-muted-foreground mb-4'>
+								Configure and send a test email
+							</p>
+							<div className='space-y-4'>
+								<div className='space-y-2'>
+									<Label htmlFor='recipient'>Recipient Email</Label>
+									<Input
+										id='recipient'
+										placeholder='recipient@example.com'
+										value={emailState.to}
+										onChange={(e) =>
+											setEmailState((prev) => ({
+												...prev,
+												to: e.target.value,
+											}))
+										}
+									/>
 								</div>
-							</CardContent>
-						</Card>
 
-						<Card>
-							<CardHeader>
-								<CardTitle>Template Data</CardTitle>
-								<CardDescription>
-									Customize the data that will be used to render the selected
-									template
-								</CardDescription>
-							</CardHeader>
-							<CardContent>
-								<div className='space-y-4'>
-									{templateName === 'welcome' && (
-										<>
-											<div className='space-y-2'>
-												<Label htmlFor='username'>Username</Label>
-												<Input
-													id='username'
-													value={welcomeData.username}
-													onChange={(e) =>
-														setWelcomeData((prev) => ({
-															...prev,
-															username: e.target.value,
-														}))
-													}
-												/>
-											</div>
-											<div className='space-y-2'>
-												<Label htmlFor='verifyUrl'>Verification URL</Label>
-												<Input
-													id='verifyUrl'
-													value={welcomeData.verifyUrl}
-													onChange={(e) =>
-														setWelcomeData((prev) => ({
-															...prev,
-															verifyUrl: e.target.value,
-														}))
-													}
-												/>
-											</div>
-										</>
-									)}
-
-									{templateName === 'notification' && (
-										<>
-											<div className='space-y-2'>
-												<Label htmlFor='username'>Username</Label>
-												<Input
-													id='username'
-													value={notificationData.username}
-													onChange={(e) =>
-														setNotificationData((prev) => ({
-															...prev,
-															username: e.target.value,
-														}))
-													}
-												/>
-											</div>
-											<div className='space-y-2'>
-												<Label htmlFor='message'>Message</Label>
-												<Textarea
-													id='message'
-													value={notificationData.message}
-													onChange={(e) =>
-														setNotificationData((prev) => ({
-															...prev,
-															message: e.target.value,
-														}))
-													}
-													rows={4}
-												/>
-											</div>
-											<div className='space-y-2'>
-												<Label htmlFor='actionUrl'>Action URL (optional)</Label>
-												<Input
-													id='actionUrl'
-													value={notificationData.actionUrl || ''}
-													onChange={(e) =>
-														setNotificationData((prev) => ({
-															...prev,
-															actionUrl: e.target.value,
-														}))
-													}
-												/>
-											</div>
-											<div className='space-y-2'>
-												<Label htmlFor='actionText'>
-													Action Text (optional)
-												</Label>
-												<Input
-													id='actionText'
-													value={notificationData.actionText || ''}
-													onChange={(e) =>
-														setNotificationData((prev) => ({
-															...prev,
-															actionText: e.target.value,
-														}))
-													}
-												/>
-											</div>
-										</>
-									)}
+								<div className='space-y-2'>
+									<Label htmlFor='subject'>Subject</Label>
+									<Input
+										id='subject'
+										placeholder='Welcome to our platform'
+										value={emailState.subject}
+										onChange={(e) =>
+											setEmailState((prev) => ({
+												...prev,
+												subject: e.target.value,
+											}))
+										}
+									/>
 								</div>
-							</CardContent>
-						</Card>
+
+								<div className='space-y-2'>
+									<Label htmlFor='template'>Email Template</Label>
+									<Select
+										value={templateName}
+										onValueChange={(value) =>
+											setTemplateName(value as EmailTemplateName)
+										}
+									>
+										<SelectTrigger id='template'>
+											<SelectValue placeholder='Select a template' />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value='welcome'>Welcome Email</SelectItem>
+											<SelectItem value='notification'>Notification</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+
+								<div className='pt-4'>
+									<Button
+										onClick={handleSendEmail}
+										variant='default'
+										disabled={
+											emailState.loading ||
+											!emailState.to ||
+											!emailState.subject
+										}
+										className='w-full rounded'
+									>
+										{emailState.loading ? 'Sending...' : 'Send Test Email'}
+									</Button>
+								</div>
+
+								{emailState.success && (
+									<div className='flex items-center text-green-500 mt-2'>
+										<Check size={16} className='mr-1' />
+										<span>Email sent successfully!</span>
+									</div>
+								)}
+
+								{emailState.error && (
+									<div className='flex items-center text-red-500 mt-2'>
+										<CircleAlert size={16} className='mr-1' />
+										<span>{emailState.error}</span>
+									</div>
+								)}
+							</div>
+						</div>
+
+						<div className='border rounded-lg bg-background p-4'>
+							<h2 className='text-base font-medium mb-2'>Template Data</h2>
+							<p className='text-sm text-muted-foreground mb-4'>
+								Customize the data that will be used to render the selected
+								template
+							</p>
+							<div className='space-y-4'>
+								{templateName === 'welcome' && (
+									<>
+										<div className='space-y-2'>
+											<Label htmlFor='username'>Username</Label>
+											<Input
+												id='username'
+												value={welcomeData.username}
+												onChange={(e) =>
+													setWelcomeData((prev) => ({
+														...prev,
+														username: e.target.value,
+													}))
+												}
+											/>
+										</div>
+										<div className='space-y-2'>
+											<Label htmlFor='verifyUrl'>Verification URL</Label>
+											<Input
+												id='verifyUrl'
+												value={welcomeData.verifyUrl}
+												onChange={(e) =>
+													setWelcomeData((prev) => ({
+														...prev,
+														verifyUrl: e.target.value,
+													}))
+												}
+											/>
+										</div>
+									</>
+								)}
+
+								{templateName === 'notification' && (
+									<>
+										<div className='space-y-2'>
+											<Label htmlFor='username'>Username</Label>
+											<Input
+												id='username'
+												value={notificationData.username}
+												onChange={(e) =>
+													setNotificationData((prev) => ({
+														...prev,
+														username: e.target.value,
+													}))
+												}
+											/>
+										</div>
+										<div className='space-y-2'>
+											<Label htmlFor='message'>Message</Label>
+											<Textarea
+												id='message'
+												value={notificationData.message}
+												onChange={(e) =>
+													setNotificationData((prev) => ({
+														...prev,
+														message: e.target.value,
+													}))
+												}
+												rows={4}
+											/>
+										</div>
+										<div className='space-y-2'>
+											<Label htmlFor='actionUrl'>Action URL (optional)</Label>
+											<Input
+												id='actionUrl'
+												value={notificationData.actionUrl || ''}
+												onChange={(e) =>
+													setNotificationData((prev) => ({
+														...prev,
+														actionUrl: e.target.value,
+													}))
+												}
+											/>
+										</div>
+										<div className='space-y-2'>
+											<Label htmlFor='actionText'>Action Text (optional)</Label>
+											<Input
+												id='actionText'
+												value={notificationData.actionText || ''}
+												onChange={(e) =>
+													setNotificationData((prev) => ({
+														...prev,
+														actionText: e.target.value,
+													}))
+												}
+											/>
+										</div>
+									</>
+								)}
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
