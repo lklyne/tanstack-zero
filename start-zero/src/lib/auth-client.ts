@@ -15,11 +15,10 @@ export const signInWithGoogle = async () => {
 }
 
 export const signInWithMagicLink = async (email: string) => {
-	const data = await authClient.signIn.magicLink({
+	return await authClient.signIn.magicLink({
 		email,
 		callbackURL: '/app',
 	})
-	return data
 }
 
 export const { signIn, signUp, signOut, getSession, useSession } = authClient
