@@ -15,6 +15,7 @@ import {
 
 interface ZeroStartLoginCodeEmailProps {
 	validationCode?: string
+	magicLink: string
 }
 
 // Use different base URL for production vs development
@@ -27,6 +28,7 @@ const baseUrl =
 
 export const ZeroStartLoginCodeEmail = ({
 	validationCode,
+	magicLink,
 }: ZeroStartLoginCodeEmailProps) => (
 	<Html>
 		<Head />
@@ -42,7 +44,7 @@ export const ZeroStartLoginCodeEmail = ({
 				/>
 				<Heading style={heading}>Your login code for Zero Start</Heading>
 				<Section style={buttonContainer}>
-					<Button style={button} href={baseUrl}>
+					<Button style={button} href={magicLink}>
 						Login to Zero Start
 					</Button>
 				</Section>
@@ -62,6 +64,7 @@ export const ZeroStartLoginCodeEmail = ({
 
 ZeroStartLoginCodeEmail.PreviewProps = {
 	validationCode: 'tt226-5398x',
+	magicLink: 'https://your-app.com/magic-link',
 } as ZeroStartLoginCodeEmailProps
 
 export default ZeroStartLoginCodeEmail

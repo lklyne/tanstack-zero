@@ -1,16 +1,24 @@
+import { magicLinkClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/react'
 
 export const authClient = createAuthClient({
-	// No baseURL needed when running on same origin
-	// plugins: [], // We can add plugins later if needed
+	plugins: [magicLinkClient()],
 })
 
 export const signInWithGoogle = async () => {
 	const data = await authClient.signIn.social({
 		provider: 'google',
-		callbackURL: '/app', // Add redirect URL here
+		callbackURL: '/app',
 	})
 
+	return data
+}
+
+export const signInWithMagicLink = async (email: string) => {
+	const data = await authClient.signIn.magicLink({
+		email,
+		callbackURL: '/app',
+	})
 	return data
 }
 

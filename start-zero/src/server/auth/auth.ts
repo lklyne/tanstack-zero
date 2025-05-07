@@ -3,6 +3,7 @@ import { authDb } from '@/server/db/auth-db'
 import * as authSchema from '@/server/db/auth-schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { magicLink } from 'better-auth/plugins'
 import { jwt } from 'better-auth/plugins'
 import * as dotenv from 'dotenv'
 
@@ -40,6 +41,23 @@ export const auth = betterAuth({
 		jwt({
 			jwt: {
 				expirationTime: '1w',
+			},
+		}),
+		magicLink({
+			sendMagicLink: async ({ email, token, url }, request) => {
+				// Send login code email using the server-side email sender and template
+				const { sendEmail } = await import('@/server/email/send')
+				const { ZeroStartLoginCodeEmail } = await import(
+					'@/emails/templates/login-code'
+				)
+				await sendEmail({
+					to: email,
+					subject: 'Your Zero Start login code',
+					react: ZeroStartLoginCodeEmail({
+						validationCode: token,
+						magicLink: url,
+					}),
+				})
 			},
 		}),
 	],
