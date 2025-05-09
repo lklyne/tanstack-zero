@@ -3,6 +3,9 @@ import { decodeJwt } from 'jose'
 
 const JWT_STORAGE_KEY = 'app-auth-jwt'
 
+// Define auth result type
+export type AuthResult = { jwt: string; decoded: AuthData } | null
+
 /**
  * Store JWT in localStorage with expiration information
  */
@@ -48,6 +51,25 @@ export function getCachedJwt(): string | null {
 			return null
 		}
 
+		return token
+	} catch (err) {
+		console.error('Error retrieving cached JWT:', err)
+		return null
+	}
+}
+
+/**
+ * Get cached JWT with less strict expiration check
+ * This is useful right after login to prevent redirect loops
+ */
+export function getCachedJwtLenient(): string | null {
+	if (typeof window === 'undefined') return null
+
+	try {
+		const stored = localStorage.getItem(JWT_STORAGE_KEY)
+		if (!stored) return null
+
+		const { token } = JSON.parse(stored)
 		return token
 	} catch (err) {
 		console.error('Error retrieving cached JWT:', err)
@@ -210,4 +232,64 @@ export function clearJwt(): void {
 	if (typeof document === 'undefined') return
 	document.cookie =
 		'better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+}
+
+/**
+ * Single utility function for getting auth with cache-first strategy
+ */
+export async function getAuth(fetchIfNeeded = true): Promise<AuthResult> {
+	console.log('[getAuth] Checking auth status')
+
+	// Try cached JWT with normal checks first
+	const cachedJwt = getCachedJwt()
+	if (cachedJwt) {
+		const decoded = decodeAuthJwt(cachedJwt)
+		if (decoded) {
+			console.log('[getAuth] Found valid cached JWT')
+			return { jwt: cachedJwt, decoded }
+		}
+	}
+
+	// Next try with more lenient checks (important right after login)
+	const lenientJwt = getCachedJwtLenient()
+	if (lenientJwt && lenientJwt !== cachedJwt) {
+		const decoded = decodeAuthJwt(lenientJwt)
+		if (decoded) {
+			console.log('[getAuth] Found JWT with lenient check')
+			return { jwt: lenientJwt, decoded }
+		}
+	}
+
+	// As a last resort, check for session cookie directly
+	const rawJwt = getRawJwt()
+	if (rawJwt) {
+		const decoded = decodeAuthJwt(rawJwt)
+		if (decoded) {
+			console.log('[getAuth] Found JWT in cookie')
+			// Store it for future use
+			storeJwt(rawJwt)
+			return { jwt: rawJwt, decoded }
+		}
+	}
+
+	// Only try network if all cache checks failed and we're allowed to fetch
+	if (fetchIfNeeded) {
+		try {
+			console.log('[getAuth] Trying network fetch')
+			const { jwt, userId } = await fetchAuthJwt()
+			if (jwt) {
+				const decoded = decodeAuthJwt(jwt)
+				if (decoded) {
+					console.log('[getAuth] Got JWT from network')
+					return { jwt, decoded }
+				}
+			}
+		} catch (err) {
+			console.warn('[getAuth] Failed to fetch auth JWT', err)
+			// Silently fail on network errors
+		}
+	}
+
+	console.log('[getAuth] No auth found')
+	return null
 }

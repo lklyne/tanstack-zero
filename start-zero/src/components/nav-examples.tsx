@@ -1,7 +1,12 @@
-'use client'
-
 import { Link, useMatches } from '@tanstack/react-router'
-import { DatabaseZap, Mail, TreePalm, UserIcon, Users } from 'lucide-react'
+import {
+	DatabaseZap,
+	Mail,
+	TreePalm,
+	UserIcon,
+	Users,
+	WifiOff,
+} from 'lucide-react'
 
 import {
 	SidebarGroup,
@@ -37,6 +42,11 @@ const items = [
 		title: 'Account',
 		url: '/app/account',
 		icon: UserIcon,
+	},
+	{
+		title: 'Offline Test',
+		url: '/app/offline-test',
+		icon: WifiOff,
 	},
 ]
 

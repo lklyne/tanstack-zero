@@ -18,6 +18,7 @@
 import Logo from '@/components/logo'
 
 import { NavExamples } from '@/components/nav-examples'
+import { NavOfflineBadge } from '@/components/nav-offline-badge'
 // import { NavMain } from "@/components/nav-main"
 // import { NavSecondary } from '@/components/nav-secondary'
 // import { NavDocuments } from '@/components/nav-documents'
@@ -43,9 +44,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							asChild
 							className='data-[slot=sidebar-menu-button]:!p-1.5 mt-0.5'
 						>
-							<Link to='/'>
-								<Logo />
-								<span className='text-sm font-semibold'>Zero Start</span>
+							<Link to='/' className='flex items-center justify-between w-full'>
+								<div className='flex items-center gap-2'>
+									<Logo />
+									<span className='text-sm font-semibold'>Zero Start</span>
+								</div>
+								<NavOfflineBadge />
 							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>

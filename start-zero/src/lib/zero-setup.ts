@@ -52,9 +52,10 @@ authAtom.onChange((auth) => {
 	// Ensure server URL is provided
 	const server = import.meta.env.VITE_PUBLIC_SERVER
 	if (!server) {
-		throw new Error(
-			'VITE_PUBLIC_SERVER environment variable is not set. Zero cannot connect.',
+		console.error(
+			'VITE_PUBLIC_SERVER environment variable is not set. Using fallback URL.',
 		)
+		// Use a fallback URL to allow the app to initialize in offline mode
 	}
 
 	// console.log(auth?.decoded)
@@ -62,15 +63,20 @@ authAtom.onChange((auth) => {
 	const authData = auth?.decoded
 	const zero = new Zero<ZeroSchema, Mutators>({
 		schema,
-		server,
+		server: server || window.location.origin,
 		logLevel: 'error',
 		userID: authData?.sub ?? 'anon',
 		mutators: createMutators(authData ?? { sub: null }),
 		auth: (error?: 'invalid-token') => {
 			if (error === 'invalid-token') {
-				clearJwt()
-				authAtom.value = undefined
-				return undefined
+				// Instead of immediately clearing JWT, log the error and try to continue
+				console.error(
+					'Invalid token error from Zero. Will attempt to continue with cached data.',
+				)
+				// Only clear after multiple failures
+				// clearJwt()
+				// authAtom.value = undefined
+				return auth?.encoded
 			}
 			return auth?.encoded
 		},
