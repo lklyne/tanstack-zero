@@ -11,19 +11,25 @@ export const useRapidFire = (callback: () => void, delay = 500) => {
 
 	useEffect(() => {
 		let timeout: NodeJS.Timeout
-		let interval: NodeJS.Timeout
+		let animationFrameId: number
 
 		if (isPressed) {
 			// Initial delay before rapid fire starts
 			timeout = setTimeout(() => {
-				// Start rapid fire
-				interval = setInterval(callback, 1)
+				// Start rapid fire using requestAnimationFrame
+				const animate = () => {
+					callback()
+					animationFrameId = requestAnimationFrame(animate)
+				}
+				animationFrameId = requestAnimationFrame(animate)
 			}, delay)
 		}
 
 		return () => {
 			clearTimeout(timeout)
-			clearInterval(interval)
+			if (animationFrameId) {
+				cancelAnimationFrame(animationFrameId)
+			}
 		}
 	}, [isPressed, callback, delay])
 

@@ -1,8 +1,8 @@
-import type { AuthData } from '@/db/schema.zero'
+import type { AuthData } from '@/server/db/zero-permissions'
 
-import { decodeAuthJwt, fetchAuthJwt, getCachedJwt } from '@/lib/jwt'
-import { fetchAuthSession } from '@/lib/session.server'
 import { authAtom } from '@/lib/zero-setup'
+import { decodeAuthJwt, fetchAuthJwt, getCachedJwt } from '@/server/auth/jwt'
+import { fetchAuthSession } from '@/server/auth/session'
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { useEffect } from 'react'

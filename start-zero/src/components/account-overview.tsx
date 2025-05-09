@@ -1,5 +1,5 @@
-import type { ZeroSchema } from '@/db/schema.zero'
 import { authClient } from '@/lib/auth-client'
+import type { ZeroSchema } from '@/server/db/zero-permissions'
 import { useQuery, useZero } from '@rocicorp/zero/react'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'

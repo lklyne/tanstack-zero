@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth' // Import auth here ONLY
+import { auth } from '@/server/auth/auth' // Import auth here ONLY
 import { createServerFn } from '@tanstack/react-start'
 import { getWebRequest } from '@tanstack/react-start/server'
 

@@ -1,3 +1,4 @@
+import { MouseDownLink } from '@/components/mouse-down-link'
 import AppNav from '@/components/nav-app'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,7 +10,7 @@ import {
 import useRapidFire from '@/hooks/use-rapid-fire'
 import { faker } from '@faker-js/faker'
 import { useQuery, useZero } from '@rocicorp/zero/react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { FileJson2, ListX, Plus, Table, X } from 'lucide-react'
 import { useCallback, useState } from 'react'
 
@@ -38,31 +39,34 @@ function PersonList({ view }: { view: 'json' | 'table' }) {
 		<div className='rounded-lg bg-background min-w-[300px]'>
 			<div>
 				{persons?.map((person) => (
-					<div key={person.id} className='flex'>
-						<Link
+					<div
+						key={person.id}
+						className='flex items-center justify-between hover:bg-secondary/40 group'
+					>
+						<MouseDownLink
 							to='/app/$personId'
 							params={{ personId: person.id }}
-							className='flex grow items-center justify-between hover:bg-secondary/40 group pl-4 pr-0 py-2'
+							className='flex grow items-center pl-4 py-2'
 						>
 							<span className='font-medium text-sm text-stone-700 group-hover:text-stone-950'>
 								{person.name}
 							</span>
-							<div className='flex items-center gap-2'>
+							<div className='flex items-center gap-2 ml-auto mr-4'>
 								<span className='text-sm text-muted-foreground w-auto'>
 									{person.id}
 								</span>
-								<div className='pr-2 flex items-center'>
-									<Button
-										onClick={() => z.mutate.persons.delete({ id: person.id })}
-										variant='ghost'
-										size='sm'
-										className='opacity-0 group-hover:opacity-100 transition-opacity'
-									>
-										<X className='w-4 h-4' />
-									</Button>
-								</div>
 							</div>
-						</Link>
+						</MouseDownLink>
+						<div className='pr-2 flex items-center'>
+							<Button
+								onClick={() => z.mutate.persons.delete({ id: person.id })}
+								variant='ghost'
+								size='xs'
+								className='opacity-0 group-hover:opacity-100 transition-opacity'
+							>
+								<X className='w-4 h-4' />
+							</Button>
+						</div>
 					</div>
 				))}
 			</div>
@@ -142,7 +146,7 @@ function RouteComponent() {
 								<TooltipProvider>
 									<Tooltip delayDuration={500}>
 										<TooltipTrigger asChild>
-											<Button variant='outline' size='sm' {...rapidAddHandlers}>
+											<Button variant='ghost' size='xs' {...rapidAddHandlers}>
 												<Plus className='w-4 h-4' />
 											</Button>
 										</TooltipTrigger>
@@ -154,7 +158,7 @@ function RouteComponent() {
 								<TooltipProvider>
 									<Tooltip delayDuration={500}>
 										<TooltipTrigger asChild>
-											<Button size='sm' variant='outline' onClick={clearAll}>
+											<Button size='xs' variant='ghost' onClick={clearAll}>
 												<ListX className='w-4 h-4' />
 											</Button>
 										</TooltipTrigger>

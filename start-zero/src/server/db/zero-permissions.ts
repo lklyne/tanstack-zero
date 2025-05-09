@@ -1,4 +1,5 @@
-import { schema as zeroSchema } from '@/db/zero-schema.gen'
+import { schema as zeroSchema } from '@/server/db/zero-schema.gen'
+import type { Schema } from '@/server/db/zero-schema.gen'
 // https://github.com/BriefHQ/drizzle-zero
 import {
 	ANYONE_CAN,
@@ -20,23 +21,23 @@ export type AuthData = { sub: User['id'] | null } & Partial<
 export const schema = zeroSchema
 
 // Define permissions with explicit types
-export type ZeroSchema = typeof zeroSchema
+export type ZeroSchema = Schema
 
 export type Person = Row<typeof zeroSchema.tables.persons>
 export type User = Row<typeof zeroSchema.tables.users>
 export type InsertPerson = InsertValue<typeof zeroSchema.tables.persons>
 export type InsertUser = InsertValue<typeof zeroSchema.tables.users>
-export const permissions = definePermissions<AuthData, ZeroSchema>(
+export const permissions = definePermissions<AuthData, Schema>(
 	zeroSchema,
 	() => {
 		const allowIfLoggedIn = (
 			authData: AuthData,
-			{ cmpLit }: ExpressionBuilder<ZeroSchema, 'persons'>,
+			{ cmpLit }: ExpressionBuilder<Schema, 'persons'>,
 		) => cmpLit(authData.sub, 'IS NOT', null)
 
 		const allowIfSelf = (
 			authData: AuthData,
-			{ cmp }: ExpressionBuilder<ZeroSchema, 'users'>,
+			{ cmp }: ExpressionBuilder<Schema, 'users'>,
 		) => cmp('id', authData.sub as string)
 
 		return {
@@ -54,6 +55,6 @@ export const permissions = definePermissions<AuthData, ZeroSchema>(
 					delete: [allowIfSelf],
 				},
 			},
-		} satisfies PermissionsConfig<AuthData, ZeroSchema>
+		} satisfies PermissionsConfig<AuthData, Schema>
 	},
 )

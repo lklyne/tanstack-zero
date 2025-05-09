@@ -1,6 +1,6 @@
-import { schema } from '@/db/schema.zero'
-import type { AuthData } from '@/db/schema.zero'
 import { createServerMutators } from '@/mutators/server'
+import type { AuthData } from '@/server/db/zero-permissions'
+import { schema } from '@/server/db/zero-schema.gen'
 import {
 	PostgresJSConnection,
 	PushProcessor,

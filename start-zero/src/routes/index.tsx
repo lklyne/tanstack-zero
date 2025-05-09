@@ -23,6 +23,11 @@ function LandingPage() {
 			description: 'Comprehensive authentication.',
 		},
 		{
+			name: 'Resend',
+			url: 'https://resend.com/',
+			description: 'Email service.',
+		},
+		{
 			name: 'Polar',
 			url: 'https://polar.sh/',
 			description: 'Payments and subscriptions. (Planned)',

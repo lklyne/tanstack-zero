@@ -1,5 +1,5 @@
 import { drizzleZeroConfig } from "drizzle-zero";
-import * as drizzleSchema from "./src/db/schema";
+import * as drizzleSchema from "./src/server/db/schema";
 
 // Define your configuration file for the CLI
 export default drizzleZeroConfig(drizzleSchema, {

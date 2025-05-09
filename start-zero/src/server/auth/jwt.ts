@@ -1,4 +1,4 @@
-import type { AuthData } from '@/db/schema.zero'
+import type { AuthData } from '@/server/db/zero-permissions'
 import { decodeJwt } from 'jose'
 
 const JWT_STORAGE_KEY = 'app-auth-jwt'

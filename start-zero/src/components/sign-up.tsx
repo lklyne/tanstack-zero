@@ -68,7 +68,7 @@ export function SignUp({ className }: SignUpProps) {
 				},
 				{
 					onSuccess: () => {
-						navigate({ to: '/' })
+						navigate({ to: '/app' })
 					},
 					onError: (ctx) => {
 						form.setError('root', {
@@ -102,7 +102,7 @@ export function SignUp({ className }: SignUpProps) {
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(onSubmit)}
-						className='flex flex-col gap-6'
+						className='flex flex-col gap-5'
 					>
 						{/* Show form-level errors if any */}
 						{form.formState.errors.root && (
