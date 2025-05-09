@@ -5,6 +5,7 @@ import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { magicLink } from 'better-auth/plugins'
 import { jwt } from 'better-auth/plugins'
+import { reactStartCookies } from 'better-auth/react-start'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -30,7 +31,6 @@ if (!secret || !origin) {
 
 export const auth = betterAuth({
 	secret,
-
 	basePath: '/api/auth',
 	database: drizzleAdapter(authDb, {
 		schema: authSchema,
@@ -60,6 +60,7 @@ export const auth = betterAuth({
 				})
 			},
 		}),
+		reactStartCookies(),
 	],
 
 	session: {
