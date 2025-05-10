@@ -31,7 +31,7 @@ export function NavOfflineBadge() {
 	if (isOnline) return null
 
 	return (
-		<Badge className='text-red-900 border border-red-200 starting:-translate-1 translate-x-0 bg-gradient-to-r from-red-50/20 to-red-100'>
+		<Badge className='text-red-950 border border-red-400/40 starting:-translate-1 translate-x-0 bg-gradient-to-br from-red-50/50 to-red-100 flex items-center gap-1'>
 			Offline Mode
 		</Badge>
 	)

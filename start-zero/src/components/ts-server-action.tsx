@@ -2,7 +2,7 @@ import * as fs from 'node:fs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Route as TanstackExamplesRoute } from '@/routes/_authed/app/_layout/tanstack-examples'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, onlineManager } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
 
@@ -77,7 +77,13 @@ export function TsServerAction() {
 		// Start with the initial value from the route loader
 		initialData: initialCounter,
 		// Don't refetch on mount if offline
-		enabled: !offline,
+		enabled: !offline && onlineManager.isOnline(),
+		// Configure refetch on reconnect
+		refetchOnReconnect: true,
+		// Increase stale time for better offline experience
+		staleTime: 1000 * 60 * 60, // 1 hour
+		// Keep data cached indefinitely for offline use
+		gcTime: 1000 * 60 * 60 * 24, // 24 hours
 	})
 
 	// Use TanStack Query mutation for updating the counter
@@ -88,28 +94,30 @@ export function TsServerAction() {
 			queryClient.setQueryData(['counter'], newCount)
 			localStorage.setItem('tsServerAction', newCount.toString())
 		},
-		// If in offline mode, update optimistically
+		// If in offline mode or network error, update optimistically
 		onMutate: async (addBy) => {
-			if (offline) {
-				// Cancel any outgoing refetches
-				await queryClient.cancelQueries({ queryKey: ['counter'] })
-				// Get current counter value
-				const previousCount = queryClient.getQueryData(['counter']) || 0
-				// Update with optimistic value
-				const newCount = (previousCount as number) + addBy
-				// Update query cache
-				queryClient.setQueryData(['counter'], newCount)
-				// Store in localStorage
-				localStorage.setItem('tsServerAction', newCount.toString())
-				return { previousCount }
-			}
+			// Always cancel any outgoing refetches to avoid conflict
+			await queryClient.cancelQueries({ queryKey: ['counter'] })
+			// Get current counter value
+			const previousCount = queryClient.getQueryData(['counter']) || 0
+			// Update with optimistic value
+			const newCount = (previousCount as number) + addBy
+			// Update query cache
+			queryClient.setQueryData(['counter'], newCount)
+			// Store in localStorage for offline persistence
+			localStorage.setItem('tsServerAction', newCount.toString())
+			return { previousCount }
 		},
 		// Handle mutation errors (reverts to previous value)
-		onError: (err, newTodo, context) => {
+		onError: (err, variables, context) => {
 			if (context?.previousCount) {
 				queryClient.setQueryData(['counter'], context.previousCount)
 			}
+			console.log('Mutation error, will retry when online', err)
 		},
+		// Always retry when coming back online
+		retry: 3,
+		retryDelay: 1000,
 	})
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
