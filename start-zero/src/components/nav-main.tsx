@@ -21,7 +21,7 @@ const HomePageHeader = () => {
 	const isLoggedIn = !!session && !isPending
 
 	return (
-		<nav className='w-full py-4 px-4 bg-background flex justify-between items-center border-b border-border text-base h-18'>
+		<nav className='w-full py-4 px-4 bg-background/50 backdrop-blur-xl flex justify-between items-center border-b border-border text-base h-17 sticky top-0 z-50'>
 			<Link
 				className='font-semibold text-sm flex items-center gap-2 p-1.5'
 				to='/'
