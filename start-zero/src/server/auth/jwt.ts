@@ -2,12 +2,37 @@ import type { AuthData } from '@/server/db/zero-permissions'
 import { decodeJwt } from 'jose'
 
 const JWT_STORAGE_KEY = 'app-auth-jwt'
+const JWT_COOKIE_NAME = 'better-auth.jwt_cache'
 
 // Define auth result type
 export type AuthResult = { jwt: string; decoded: AuthData } | null
 
 /**
+ * Parse cookies from document.cookie string
+ */
+function parseCookies(): Record<string, string> {
+	if (typeof document === 'undefined') return {}
+	return document.cookie.split(';').reduce(
+		(cookies, cookie) => {
+			const [name, value] = cookie.trim().split('=')
+			cookies[name] = decodeURIComponent(value || '')
+			return cookies
+		},
+		{} as Record<string, string>,
+	)
+}
+
+/**
+ * Get JWT from cookie
+ */
+export function getJwtFromCookie(): string | null {
+	const cookies = parseCookies()
+	return cookies[JWT_COOKIE_NAME] || null
+}
+
+/**
  * Store JWT in localStorage with expiration information
+ * @deprecated Use cookie-based JWT instead
  */
 export function storeJwt(jwt: string): void {
 	if (typeof window === 'undefined') return
@@ -33,8 +58,16 @@ export function storeJwt(jwt: string): void {
 
 /**
  * Get cached JWT from localStorage if valid
+ * @deprecated Use getJwtFromCookie instead
  */
 export function getCachedJwt(): string | null {
+	// Try cookie first
+	const cookieJwt = getJwtFromCookie()
+	if (cookieJwt) {
+		return cookieJwt
+	}
+
+	// Fall back to localStorage
 	if (typeof window === 'undefined') return null
 
 	try {
@@ -61,8 +94,16 @@ export function getCachedJwt(): string | null {
 /**
  * Get cached JWT with less strict expiration check
  * This is useful right after login to prevent redirect loops
+ * @deprecated Use getJwtFromCookie instead
  */
 export function getCachedJwtLenient(): string | null {
+	// Try cookie first
+	const cookieJwt = getJwtFromCookie()
+	if (cookieJwt) {
+		return cookieJwt
+	}
+
+	// Fall back to localStorage
 	if (typeof window === 'undefined') return null
 
 	try {
@@ -119,7 +160,7 @@ export function getJwt(): AuthData | undefined {
 
 /**
  * Get the raw JWT token from Better Auth's cookie
- * @deprecated Use fetchAuthJwt instead
+ * @deprecated Use getJwtFromCookie instead
  */
 export function getRawJwt(): string | undefined {
 	if (typeof document === 'undefined') return undefined
@@ -130,6 +171,23 @@ export function getRawJwt(): string | undefined {
 	)
 	if (!cookie) return undefined
 	return cookie.split('=')[1].trim()
+}
+
+/**
+ * Get the Better Auth session data cookie
+ */
+export function getSessionDataFromCookie(): Record<string, unknown> | null {
+	const cookies = parseCookies()
+	const sessionDataCookie = cookies['better-auth.session_data']
+
+	if (!sessionDataCookie) return null
+
+	try {
+		return JSON.parse(decodeURIComponent(sessionDataCookie))
+	} catch (err) {
+		console.error('Error parsing session data cookie:', err)
+		return null
+	}
 }
 
 /**
@@ -153,10 +211,26 @@ export async function fetchAuthJwt(): Promise<{
 	userId: string | null
 }> {
 	try {
-		// First, try to get from localStorage cache
+		// First, try to get from cookie
+		const cookieJwt = getJwtFromCookie()
+		if (cookieJwt) {
+			console.log('🟦 Using JWT from cookie')
+			try {
+				const payload = decodeJwt(cookieJwt)
+				return {
+					jwt: cookieJwt,
+					userId: payload.sub || null,
+				}
+			} catch (err) {
+				console.error('Error with cookie JWT, fetching new one:', err)
+				// Fall through to check localStorage
+			}
+		}
+
+		// Then try localStorage cache
 		const cachedJwt = getCachedJwt()
 		if (cachedJwt) {
-			console.log('🟦 Using cached JWT')
+			console.log('🟦 Using cached JWT from localStorage')
 			try {
 				const payload = decodeJwt(cachedJwt)
 				return {
@@ -204,7 +278,7 @@ export async function fetchAuthJwt(): Promise<{
 			return { jwt: null, userId: null }
 		}
 
-		// Cache the JWT for future use
+		// Cache the JWT for future use (deprecated)
 		storeJwt(jwt)
 
 		// Extract user ID from JWT
@@ -232,6 +306,10 @@ export function clearJwt(): void {
 	if (typeof document === 'undefined') return
 	document.cookie =
 		'better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+	document.cookie =
+		'better-auth.jwt_cache=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+	document.cookie =
+		'better-auth.session_data=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
 }
 
 /**
@@ -240,7 +318,41 @@ export function clearJwt(): void {
 export async function getAuth(fetchIfNeeded = true): Promise<AuthResult> {
 	console.log('[getAuth] Checking auth status')
 
-	// Try cached JWT with normal checks first
+	// First try JWT from cookie
+	const cookieJwt = getJwtFromCookie()
+	if (cookieJwt) {
+		const decoded = decodeAuthJwt(cookieJwt)
+		if (decoded) {
+			console.log('[getAuth] Found valid JWT in cookie')
+			return { jwt: cookieJwt, decoded }
+		}
+	}
+
+	// Then try session data cookie
+	const sessionData = getSessionDataFromCookie()
+	if (sessionData?.user) {
+		console.log('[getAuth] Found session data in cookie')
+		// We need to get a proper JWT for Zero, so trigger a fetch
+		if (fetchIfNeeded) {
+			try {
+				const { jwt, userId } = await fetchAuthJwt()
+				if (jwt) {
+					const decoded = decodeAuthJwt(jwt)
+					if (decoded) {
+						console.log('[getAuth] Got JWT from fetchAuthJwt')
+						return { jwt, decoded }
+					}
+				}
+			} catch (err) {
+				console.warn(
+					'[getAuth] Failed to fetch JWT after finding session data',
+					err,
+				)
+			}
+		}
+	}
+
+	// Try cached JWT with normal checks
 	const cachedJwt = getCachedJwt()
 	if (cachedJwt) {
 		const decoded = decodeAuthJwt(cachedJwt)

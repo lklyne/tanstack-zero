@@ -6,6 +6,8 @@ import {
 	decodeAuthJwt,
 	getAuth,
 	getCachedJwt,
+	getJwtFromCookie,
+	getSessionDataFromCookie,
 } from '@/server/auth/jwt'
 import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
@@ -24,18 +26,27 @@ function setAuthAtom(jwt: string, decoded: AuthData) {
 function AuthWrapper() {
 	const navigate = useNavigate()
 
-	// Check for cached token immediately before rendering anything
-	const cachedJwt = getCachedJwt()
-	const cachedDecoded = cachedJwt ? decodeAuthJwt(cachedJwt) : null
+	// First, check for session data and JWT in cookies synchronously
+	const cookieJwt = getJwtFromCookie()
+	const sessionData = getSessionDataFromCookie()
+	const cookieDecoded = cookieJwt ? decodeAuthJwt(cookieJwt) : null
+	const hasSessionData = sessionData?.user != null
 
-	// If we have a valid cached token, use it immediately to avoid loading state
-	const [isLoading, setIsLoading] = useState(!cachedDecoded)
-	const [isAuthenticated, setIsAuthenticated] = useState(!!cachedDecoded)
+	// If we have either a valid JWT cookie or session data, use it immediately
+	const [isLoading, setIsLoading] = useState(!cookieDecoded && !hasSessionData)
+	const [isAuthenticated, setIsAuthenticated] = useState(
+		!!cookieDecoded || hasSessionData,
+	)
 	const [authCheckComplete, setAuthCheckComplete] = useState(false)
 
-	// If we have a cached token, set it in the auth atom synchronously
-	if (cachedJwt && cachedDecoded && !authAtom.value) {
-		setAuthAtom(cachedJwt, cachedDecoded)
+	// For cookie-based JWT, set it in the auth atom synchronously
+	if (cookieJwt && cookieDecoded && !authAtom.value) {
+		setAuthAtom(cookieJwt, cookieDecoded)
+	} else if (hasSessionData && !cookieDecoded) {
+		// We have session data but no JWT - this is okay to render the app, but we need to fetch a JWT for Zero
+		console.log(
+			'[AuthWrapper] Found session data but no JWT, will fetch in background',
+		)
 	}
 
 	useEffect(() => {
@@ -51,15 +62,23 @@ function AuthWrapper() {
 			}
 		}, 5000) // 5 second timeout
 
-		// If we already authenticated from cache, just verify in background
+		// If we already authenticated from cookies, just verify in background
 		if (isAuthenticated) {
 			console.log(
-				'[AuthWrapper] Already authenticated from cache, verifying in background',
+				'[AuthWrapper] Already authenticated from cookies, verifying in background',
 			)
 			getAuth(true)
 				.then((auth: AuthResult) => {
 					if (auth) {
 						setAuthAtom(auth.jwt, auth.decoded)
+					} else {
+						// If verification fails (maybe cookie is invalid), redirect to login
+						console.log('[AuthWrapper] Cookie auth verification failed')
+						navigate({
+							to: '/auth/login',
+							search: { redirect: window.location.href },
+						})
+						setIsAuthenticated(false)
 					}
 					setAuthCheckComplete(true)
 				})
@@ -104,7 +123,7 @@ function AuthWrapper() {
 	}, [isAuthenticated, navigate, isLoading])
 
 	// Only show loading condition while actively checking auth
-	// and we don't have a cached token
+	// and we don't have cookies to use
 	if (isLoading) {
 		// Return a loading indicator after a slight delay to avoid flicker
 		return null

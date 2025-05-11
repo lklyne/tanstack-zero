@@ -73,9 +73,8 @@ authAtom.onChange((auth) => {
 				console.error(
 					'Invalid token error from Zero. Will attempt to continue with cached data.',
 				)
-				// Only clear after multiple failures
-				// clearJwt()
-				// authAtom.value = undefined
+				// Only clear after multiple failures or redirect to login
+				// We no longer rely solely on localStorage, so we don't clear here
 				return auth?.encoded
 			}
 			return auth?.encoded
