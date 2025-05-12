@@ -19,7 +19,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { signIn, signInWithGoogle } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
-import { storeJwt } from '@/server/auth/jwt'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
@@ -55,18 +54,13 @@ export function LoginForm({
 
 			if (data) {
 				console.log('Login successful, data:', data)
-				// Wait a moment to ensure token is properly processed
-				setTimeout(() => {
-					// Try to extract token from response if available
-					if (data.token) {
-						console.log('Manually storing token from login response')
-						storeJwt(data.token)
-					}
 
-					// Redirect to dashboard or home page after successful login
-					console.log('Navigating to app after login')
-					navigate({ to: '/app' })
-				}, 100)
+				// JWT is now automatically stored in cookies by Better Auth
+				// No need to manually store it
+
+				// Redirect to dashboard or home page after successful login
+				console.log('Navigating to app after login')
+				navigate({ to: '/app' })
 			} else {
 				// Handle login failure - attempt to parse error message if available
 				let errorMessage = 'Invalid email or password'

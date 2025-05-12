@@ -23,7 +23,6 @@ export function preload(z: Zero<ZeroSchema, Mutators>) {
 	if (didPreload) {
 		return
 	}
-	// console.log('🟦 preload runs')
 	didPreload = true
 
 	// Preload all users and persons with CACHE_FOREVER policy
@@ -34,7 +33,6 @@ export function preload(z: Zero<ZeroSchema, Mutators>) {
 // Re-create Zero whenever auth changes
 authAtom.onChange((auth) => {
 	// Skip until we actually have real auth data
-	// console.log('🟦 authAtom.onChange runs')
 	if (!auth) {
 		return
 	}
@@ -58,8 +56,6 @@ authAtom.onChange((auth) => {
 		// Use a fallback URL to allow the app to initialize in offline mode
 	}
 
-	// console.log(auth?.decoded)
-
 	const authData = auth?.decoded
 	const zero = new Zero<ZeroSchema, Mutators>({
 		schema,
@@ -69,12 +65,11 @@ authAtom.onChange((auth) => {
 		mutators: createMutators(authData ?? { sub: null }),
 		auth: (error?: 'invalid-token') => {
 			if (error === 'invalid-token') {
-				// Instead of immediately clearing JWT, log the error and try to continue
 				console.error(
 					'Invalid token error from Zero. Will attempt to continue with cached data.',
 				)
-				// Only clear after multiple failures or redirect to login
-				// We no longer rely solely on localStorage, so we don't clear here
+				// If token is invalid, we'll still try to use it
+				// Better Auth handles token refresh automatically via cookies
 				return auth?.encoded
 			}
 			return auth?.encoded
@@ -85,12 +80,6 @@ authAtom.onChange((auth) => {
 
 	// Call preload after zero instance is created
 	preload(zero)
-
-	// Expose zero instance in dev tools
-	// if (import.meta.env.DEV) {
-	// 	const devWindow = window as { zero?: typeof zero }
-	// 	devWindow.zero = zero
-	// }
 })
 
 export { zeroAtom, authAtom }

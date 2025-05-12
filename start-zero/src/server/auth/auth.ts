@@ -42,14 +42,6 @@ export const auth = betterAuth({
 			jwt: {
 				expirationTime: '1w',
 			},
-			cookie: {
-				name: 'better-auth.jwt_cache',
-				httpOnly: false, // Allow client-side access
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'lax',
-				path: '/',
-				maxAge: 15 * 60, // 15 minutes
-			},
 		}),
 		magicLink({
 			sendMagicLink: async ({ email, token, url }, request) => {
@@ -71,10 +63,37 @@ export const auth = betterAuth({
 		reactStartCookies(),
 	],
 
+	advanced: {
+		cookies: {
+			// JWT token cookie - httpOnly for security
+			jwt: {
+				name: 'better-auth.jwt',
+				attributes: {
+					httpOnly: true,
+					secure: process.env.NODE_ENV === 'production',
+					sameSite: 'lax',
+					path: '/',
+					maxAge: 7 * 24 * 60 * 60, // 1 week
+				},
+			},
+			// JWT payload cookie - not httpOnly so JS can access it
+			jwt_payload: {
+				name: 'better-auth.jwt_payload',
+				attributes: {
+					httpOnly: false,
+					secure: process.env.NODE_ENV === 'production',
+					sameSite: 'lax',
+					path: '/',
+					maxAge: 7 * 24 * 60 * 60, // 1 week
+				},
+			},
+		},
+	},
+
 	session: {
 		cookieCache: {
 			enabled: true,
-			maxAge: 15 * 60, // Cache duration in seconds (15 minutes)
+			maxAge: 7 * 24 * 60 * 60, // Cache duration in seconds (1 week)
 		},
 	},
 

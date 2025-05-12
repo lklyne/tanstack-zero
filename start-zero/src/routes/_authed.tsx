@@ -5,8 +5,8 @@ import {
 	type AuthResult,
 	decodeAuthJwt,
 	getAuth,
-	getCachedJwt,
 	getJwtFromCookie,
+	getJwtPayloadFromCookie,
 	getSessionDataFromCookie,
 } from '@/server/auth/jwt'
 import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
@@ -26,31 +26,41 @@ function setAuthAtom(jwt: string, decoded: AuthData) {
 function AuthWrapper() {
 	const navigate = useNavigate()
 
-	// First, check for session data and JWT in cookies synchronously
+	// First, check for auth data in cookies synchronously
 	const cookieJwt = getJwtFromCookie()
+	const payloadData = getJwtPayloadFromCookie()
 	const sessionData = getSessionDataFromCookie()
-	const cookieDecoded = cookieJwt ? decodeAuthJwt(cookieJwt) : null
+
+	// Determine initial auth state from cookies
+	const hasJwtCookie = !!cookieJwt
+	const hasPayloadData = !!payloadData && !!cookieJwt
 	const hasSessionData = sessionData?.user != null
 
-	// If we have either a valid JWT cookie or session data, use it immediately
-	const [isLoading, setIsLoading] = useState(!cookieDecoded && !hasSessionData)
-	const [isAuthenticated, setIsAuthenticated] = useState(
-		!!cookieDecoded || hasSessionData,
-	)
+	// We're initially authenticated if we have either JWT cookie data or session data
+	const initiallyAuthenticated =
+		hasJwtCookie || hasPayloadData || hasSessionData
+
+	const [isLoading, setIsLoading] = useState(!initiallyAuthenticated)
+	const [isAuthenticated, setIsAuthenticated] = useState(initiallyAuthenticated)
 	const [authCheckComplete, setAuthCheckComplete] = useState(false)
 
-	// For cookie-based JWT, set it in the auth atom synchronously
-	if (cookieJwt && cookieDecoded && !authAtom.value) {
-		setAuthAtom(cookieJwt, cookieDecoded)
-	} else if (hasSessionData && !cookieDecoded) {
-		// We have session data but no JWT - this is okay to render the app, but we need to fetch a JWT for Zero
-		console.log(
-			'[AuthWrapper] Found session data but no JWT, will fetch in background',
-		)
-	}
+	// Set auth in atom synchronously if we have JWT or payload data
+	useEffect(() => {
+		// If we have a JWT cookie and payload data, set it in the auth atom synchronously
+		if (cookieJwt && payloadData) {
+			setAuthAtom(cookieJwt, payloadData)
+		}
+		// If we have a JWT cookie but no payload data, try to decode it
+		else if (cookieJwt) {
+			const decoded = decodeAuthJwt(cookieJwt)
+			if (decoded) {
+				setAuthAtom(cookieJwt, decoded)
+			}
+		}
+	}, [cookieJwt, payloadData])
 
 	useEffect(() => {
-		// Set a safety timeout to prevent infinite loading on refresh
+		// Set a safety timeout to prevent infinite loading
 		const timeoutId = setTimeout(() => {
 			if (isLoading) {
 				console.warn('[AuthWrapper] Auth check timed out, redirecting to login')

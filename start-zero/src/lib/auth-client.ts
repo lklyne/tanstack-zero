@@ -4,17 +4,46 @@ import { magicLinkClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/react'
 import { useEffect } from 'react'
 
-// Setup storage event listener for cross-tab signout
+// Use a dedicated channel for cross-tab communication
+const SIGNOUT_CHANNEL_NAME = 'better-auth.signout-channel'
+const SIGNOUT_EVENT_FALLBACK = 'better-auth.signout-event'
+
+// Setup BroadcastChannel for cross-tab signout
+let signoutChannel: BroadcastChannel | null = null
+
+// Initialize cross-tab communication
 if (typeof window !== 'undefined') {
-	window.addEventListener('storage', (event) => {
-		if (event.key === 'better-auth.signout') {
-			console.log('Cross-tab signout detected')
-			// Clear local auth state
-			authAtom.value = undefined
-			// Force page reload to clear any in-memory state
-			window.location.href = '/auth/login'
+	// Try to use BroadcastChannel API (more reliable and doesn't use localStorage)
+	try {
+		signoutChannel = new BroadcastChannel(SIGNOUT_CHANNEL_NAME)
+		signoutChannel.onmessage = (event) => {
+			if (event.data === 'signout') {
+				console.log('Cross-tab signout event received via BroadcastChannel')
+				// Clear local auth state
+				authAtom.value = undefined
+				// Clear cookies
+				clearJwt()
+				// Force page reload to clear any in-memory state
+				window.location.href = '/auth/login'
+			}
 		}
-	})
+	} catch (err) {
+		// Fallback for browsers that don't support BroadcastChannel
+		console.warn(
+			'BroadcastChannel not supported, falling back to localStorage for signout events',
+		)
+		window.addEventListener('storage', (event) => {
+			if (event.key === SIGNOUT_EVENT_FALLBACK && event.newValue) {
+				console.log('Cross-tab signout detected via localStorage')
+				// Clear local auth state
+				authAtom.value = undefined
+				// Clear cookies
+				clearJwt()
+				// Force page reload to clear any in-memory state
+				window.location.href = '/auth/login'
+			}
+		})
+	}
 }
 
 export const authClient = createAuthClient({
@@ -37,22 +66,45 @@ export const signInWithMagicLink = async (email: string) => {
 	})
 }
 
-// Enhanced signOut that also clears cookies and localStorage
+// Send cross-tab signout message using available mechanisms
+function broadcastSignout() {
+	// Try BroadcastChannel first (modern, preferred approach)
+	if (signoutChannel) {
+		try {
+			signoutChannel.postMessage('signout')
+		} catch (err) {
+			console.warn('Error using BroadcastChannel for signout:', err)
+		}
+	}
+
+	// Fallback to localStorage for older browsers
+	try {
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem(SIGNOUT_EVENT_FALLBACK, Date.now().toString())
+			// Clean up after a moment
+			setTimeout(() => {
+				localStorage.removeItem(SIGNOUT_EVENT_FALLBACK)
+			}, 1000)
+		}
+	} catch (err) {
+		console.warn('Error using localStorage fallback for signout:', err)
+	}
+}
+
+// Enhanced signOut that also clears cookies
 export const enhancedSignOut = async () => {
 	try {
 		// Call Better Auth signOut to invalidate the session
 		await authClient.signOut()
 
-		// Clear our custom JWT storage
+		// Clear our cookies
 		clearJwt()
 
 		// Clear the auth atom
 		authAtom.value = undefined
 
-		// Trigger cross-tab signout
-		if (typeof localStorage !== 'undefined') {
-			localStorage.setItem('better-auth.signout', Date.now().toString())
-		}
+		// Broadcast signout to other tabs
+		broadcastSignout()
 
 		return true
 	} catch (error) {
@@ -70,17 +122,11 @@ export const signOut = enhancedSignOut
 // Hook to handle auth sync across tabs
 export function useAuthSync() {
 	useEffect(() => {
-		const handleStorageChange = (event: StorageEvent) => {
-			if (event.key === 'better-auth.signout') {
-				console.log('Cross-tab signout detected')
-				// Clear local auth state
-				authAtom.value = undefined
-			}
-		}
+		// BroadcastChannel setup is already handled at the module level
+		// This hook can be used in top-level components to ensure auth syncing is active
 
-		window.addEventListener('storage', handleStorageChange)
-		return () => {
-			window.removeEventListener('storage', handleStorageChange)
-		}
+		// No additional setup needed for BroadcastChannel
+		// Return empty cleanup function
+		return () => {}
 	}, [])
 }
