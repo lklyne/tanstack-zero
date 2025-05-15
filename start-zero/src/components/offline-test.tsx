@@ -45,7 +45,7 @@ export function OfflineTest() {
 	return (
 		<div className='container'>
 			<div className='flex flex-col border m-4 bg-background'>
-				<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2'>
+				<div className='flex items-center gap-2 w-full justify-between px-4 border-b pb-2 pt-2 h-10'>
 					<h2 className='font-semibold text-sm'>Network Status</h2>
 					<NavOfflineBadge />
 				</div>

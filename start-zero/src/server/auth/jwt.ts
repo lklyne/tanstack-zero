@@ -9,6 +9,14 @@ const SESSION_DATA_COOKIE_NAME = 'better-auth.session_data'
 // Define auth result type
 export type AuthResult = { jwt: string; decoded: AuthData } | null
 
+// Define a basic user type for session data
+type SessionUser = {
+	id?: string | number
+	name?: string
+	email?: string
+	[key: string]: unknown
+}
+
 /**
  * Parse cookies from document.cookie string
  */
@@ -68,14 +76,16 @@ export function decodeAuthJwt(jwt: string): AuthData | undefined {
 /**
  * Get the Better Auth session data cookie
  */
-export function getSessionDataFromCookie(): Record<string, unknown> | null {
+export function getSessionDataFromCookie(): { user?: SessionUser } | null {
 	const cookies = parseCookies()
 	const sessionDataCookie = cookies[SESSION_DATA_COOKIE_NAME]
 
 	if (!sessionDataCookie) return null
 
 	try {
-		return JSON.parse(decodeURIComponent(sessionDataCookie))
+		return JSON.parse(decodeURIComponent(sessionDataCookie)) as {
+			user?: SessionUser
+		}
 	} catch (err) {
 		console.error('Error parsing session data cookie:', err)
 		return null
@@ -97,27 +107,13 @@ export function getUserIdFromJwt(jwt: string): string {
 
 /**
  * Fetch fresh JWT from Better Auth's token endpoint
+ * Better Auth handles cookie setting automatically, so we don't manually set cookies
  */
 export async function fetchAuthJwt(): Promise<{
 	jwt: string | null
 	userId: string | null
 }> {
 	try {
-		// First, try to get from cookie
-		const cookieJwt = getJwtFromCookie()
-		if (cookieJwt) {
-			console.log('🟦 Using JWT from cookie')
-			try {
-				const payload = decodeJwt(cookieJwt)
-				return {
-					jwt: cookieJwt,
-					userId: payload.sub || null,
-				}
-			} catch (err) {
-				console.error('Error with cookie JWT, fetching new one:', err)
-			}
-		}
-
 		const baseUrl = import.meta.client
 			? window.location.origin
 			: 'http://localhost:3000'
@@ -169,7 +165,8 @@ export async function fetchAuthJwt(): Promise<{
 }
 
 /**
- * Clear all auth cookies
+ * Clear all auth cookies - rely on Better Auth for clearing cookies
+ * but keep this for compatibility with existing code that calls clearJwt()
  */
 export function clearJwt(): void {
 	if (typeof document === 'undefined') return
@@ -185,7 +182,7 @@ export function clearJwt(): void {
 
 /**
  * Single utility function for getting auth with cache-first strategy
- * Now using cookies exclusively
+ * Now using cookies exclusively with Better Auth's cookie management
  */
 export async function getAuth(fetchIfNeeded = true): Promise<AuthResult> {
 	console.log('[getAuth] Checking auth status')
@@ -227,7 +224,19 @@ export async function getAuth(fetchIfNeeded = true): Promise<AuthResult> {
 					'[getAuth] Failed to fetch JWT after finding session data',
 					err,
 				)
+				// Silently fail on network errors for offline support
 			}
+		}
+
+		// If network request fails but we have session data,
+		// consider the user authenticated for offline support
+		return {
+			jwt: 'offline-session',
+			decoded: {
+				sub: String(sessionData.user?.id || ''),
+				name: String(sessionData.user?.name || ''),
+				email: String(sessionData.user?.email || ''),
+			} as AuthData,
 		}
 	}
 

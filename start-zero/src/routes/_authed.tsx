@@ -1,19 +1,26 @@
 import type { AuthData } from '@/server/db/zero-permissions'
 
+import { getSession, useAuthSync, useSession } from '@/lib/auth-client'
 import { authAtom } from '@/lib/zero-setup'
 import {
 	type AuthResult,
 	decodeAuthJwt,
-	getAuth,
 	getJwtFromCookie,
 	getJwtPayloadFromCookie,
 	getSessionDataFromCookie,
 } from '@/server/auth/jwt'
-import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import {
+	Outlet,
+	createFileRoute,
+	useNavigate,
+	useRouter,
+} from '@tanstack/react-router'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 
 export const Route = createFileRoute('/_authed')({
 	component: AuthWrapper,
+	// Disable SSR for this route since it uses client-only state
+	ssr: false,
 })
 
 function setAuthAtom(jwt: string, decoded: AuthData) {
@@ -23,8 +30,76 @@ function setAuthAtom(jwt: string, decoded: AuthData) {
 	}
 }
 
+// Custom hook to verify auth on route changes
+function useAuthVerification() {
+	const navigate = useNavigate()
+	const router = useRouter()
+	const { checkAuth } = useAuthSync()
+	// Get direct access to auth atom for immediate checks
+	const auth = useSyncExternalStore(
+		authAtom.onChange,
+		authAtom.getSnapshot,
+		authAtom.getServerSnapshot,
+	)
+
+	useEffect(() => {
+		// Function to verify auth
+		const verifyAuth = async () => {
+			console.log('[AuthVerification] Verifying auth on route change')
+
+			// First check if we have auth in the atom already
+			if (auth?.decoded?.sub) {
+				console.log(
+					'[AuthVerification] Found valid auth in atom, skipping network check',
+				)
+				return true
+			}
+
+			// Otherwise check with the auth system
+			const isAuthenticated = await checkAuth(false) // Don't force network check on route change
+
+			if (!isAuthenticated) {
+				console.log(
+					'[AuthVerification] Auth invalid on route change, redirecting to login',
+				)
+				navigate({
+					to: '/auth/login',
+					search: { redirect: window.location.href },
+				})
+			}
+		}
+
+		// Subscribe to route changes
+		const unsubscribe = router.history.subscribe(() => {
+			// Only run verification if we're not already on a login/auth page
+			if (!window.location.pathname.startsWith('/auth/')) {
+				verifyAuth()
+			}
+		})
+
+		return () => {
+			unsubscribe()
+		}
+	}, [navigate, router.history, checkAuth, auth])
+}
+
 function AuthWrapper() {
 	const navigate = useNavigate()
+	const session = useSession()
+	const isPending = session.isPending
+	const isAuthenticated = !!session.data?.user
+	const userData = session.data
+
+	// Also check auth atom directly to avoid network dependency
+	const auth = useSyncExternalStore(
+		authAtom.onChange,
+		authAtom.getSnapshot,
+		authAtom.getServerSnapshot,
+	)
+	const hasValidAuthInAtom = !!auth?.decoded?.sub
+
+	// Use the auth verification hook to check auth on route changes
+	useAuthVerification()
 
 	// First, check for auth data in cookies synchronously
 	const cookieJwt = getJwtFromCookie()
@@ -38,13 +113,15 @@ function AuthWrapper() {
 
 	// We're initially authenticated if we have either JWT cookie data or session data
 	const initiallyAuthenticated =
-		hasJwtCookie || hasPayloadData || hasSessionData
+		hasJwtCookie || hasPayloadData || hasSessionData || hasValidAuthInAtom
 
-	const [isLoading, setIsLoading] = useState(!initiallyAuthenticated)
-	const [isAuthenticated, setIsAuthenticated] = useState(initiallyAuthenticated)
-	const [authCheckComplete, setAuthCheckComplete] = useState(false)
+	console.log('[AuthWrapper] Auth state:', {
+		cookieAuth: hasJwtCookie || hasPayloadData || hasSessionData,
+		atomAuth: hasValidAuthInAtom,
+		sessionAuth: isAuthenticated,
+	})
 
-	// Set auth in atom synchronously if we have JWT or payload data
+	// Set auth in atom synchronously if we have JWT or payload data from cookies
 	useEffect(() => {
 		// If we have a JWT cookie and payload data, set it in the auth atom synchronously
 		if (cookieJwt && payloadData) {
@@ -59,91 +136,58 @@ function AuthWrapper() {
 		}
 	}, [cookieJwt, payloadData])
 
+	// Set up a safety timeout to prevent infinite loading when offline
 	useEffect(() => {
-		// Set a safety timeout to prevent infinite loading
-		const timeoutId = setTimeout(() => {
-			if (isLoading) {
+		let timeoutId: NodeJS.Timeout
+
+		if (isPending && !initiallyAuthenticated) {
+			timeoutId = setTimeout(() => {
 				console.warn('[AuthWrapper] Auth check timed out, redirecting to login')
-				setIsLoading(false)
 				navigate({
 					to: '/auth/login',
 					search: { redirect: window.location.href },
 				})
-			}
-		}, 5000) // 5 second timeout
-
-		// If we already authenticated from cookies, just verify in background
-		if (isAuthenticated) {
-			console.log(
-				'[AuthWrapper] Already authenticated from cookies, verifying in background',
-			)
-			getAuth(true)
-				.then((auth: AuthResult) => {
-					if (auth) {
-						setAuthAtom(auth.jwt, auth.decoded)
-					} else {
-						// If verification fails (maybe cookie is invalid), redirect to login
-						console.log('[AuthWrapper] Cookie auth verification failed')
-						navigate({
-							to: '/auth/login',
-							search: { redirect: window.location.href },
-						})
-						setIsAuthenticated(false)
-					}
-					setAuthCheckComplete(true)
-				})
-				.catch((err) => {
-					console.warn('[AuthWrapper] Background validation error:', err)
-					setAuthCheckComplete(true)
-				})
-
-			clearTimeout(timeoutId)
-			return
+			}, 5000)
 		}
 
-		// Otherwise we need to check auth fully
-		console.log('[AuthWrapper] Running auth check')
-		getAuth(true)
-			.then((auth: AuthResult) => {
-				if (auth) {
-					console.log('[AuthWrapper] Auth validated')
-					setAuthAtom(auth.jwt, auth.decoded)
-					setIsAuthenticated(true)
-				} else {
-					console.log('[AuthWrapper] No valid auth found, redirecting')
-					navigate({
-						to: '/auth/login',
-						search: { redirect: window.location.href },
-					})
-				}
-				setIsLoading(false)
-				setAuthCheckComplete(true)
-			})
-			.catch((err) => {
-				console.warn('[AuthWrapper] Auth error:', err)
-				navigate({
-					to: '/auth/login',
-					search: { redirect: window.location.href },
-				})
-				setIsLoading(false)
-				setAuthCheckComplete(true)
-			})
+		return () => {
+			if (timeoutId) clearTimeout(timeoutId)
+		}
+	}, [isPending, initiallyAuthenticated, navigate])
 
-		return () => clearTimeout(timeoutId)
-	}, [isAuthenticated, navigate, isLoading])
+	// Check session status and update atom when online
+	useEffect(() => {
+		// If we already have session data, update the auth atom
+		if (userData?.user) {
+			// Get JWT from Better Auth if available
+			getSession({
+				fetchOptions: {
+					onSuccess: (ctx) => {
+						const jwt = ctx.response.headers.get('set-auth-jwt')
+						if (jwt) {
+							const decoded = decodeAuthJwt(jwt)
+							if (decoded) {
+								setAuthAtom(jwt, decoded)
+							}
+						}
+					},
+				},
+			})
+		}
+		// If we're authenticated from cookies but not from Better Auth session,
+		// let's keep the cookie authentication for offline usage
+	}, [userData])
 
-	// Only show loading condition while actively checking auth
-	// and we don't have cookies to use
-	if (isLoading) {
-		// Return a loading indicator after a slight delay to avoid flicker
-		return null
+	// If we're still checking authentication and don't have any cached credentials
+	if (isPending && !initiallyAuthenticated) {
+		return null // Show loading state
 	}
 
-	// If we're authenticated, render the app
-	if (isAuthenticated) {
+	// If Better Auth says we're authenticated or we have valid cookies or auth atom
+	if (isAuthenticated || initiallyAuthenticated || hasValidAuthInAtom) {
 		return <Outlet />
 	}
 
-	// If auth check is complete and we're not authenticated, redirect will happen
+	// If we're not authenticated, redirect will happen from useAuthSync
 	return null
 }

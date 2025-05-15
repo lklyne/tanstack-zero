@@ -1,38 +1,21 @@
 import { Badge } from '@/components/ui/badge'
-import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useNetworkStatus } from '@/hooks/use-network-status'
 
 export function NavOfflineBadge() {
-	const [isOnline, setIsOnline] = useState(
-		typeof navigator !== 'undefined' ? navigator.onLine : true,
-	)
-	const queryClient = useQueryClient()
-
-	useEffect(() => {
-		const handleOnline = () => {
-			setIsOnline(true)
-			// When coming back online, attempt to refetch any stale queries
-			queryClient.invalidateQueries()
-		}
-
-		const handleOffline = () => {
-			setIsOnline(false)
-		}
-
-		window.addEventListener('online', handleOnline)
-		window.addEventListener('offline', handleOffline)
-
-		return () => {
-			window.removeEventListener('online', handleOnline)
-			window.removeEventListener('offline', handleOffline)
-		}
-	}, [queryClient])
+	const { isOnline } = useNetworkStatus()
 
 	if (isOnline) return null
 
 	return (
-		<Badge className='text-red-950 border border-red-400/40 starting:-translate-1 translate-x-0 bg-gradient-to-br from-red-50/50 to-red-100 flex items-center gap-1'>
-			Offline Mode
+		<Badge
+			className='text-amber-950 border border-amber-400/60 flex items-center gap-1 relative'
+			style={{
+				background: 'white',
+				backgroundImage:
+					'repeating-linear-gradient(45deg, rgba(245, 158, 11, 0.1) 0px, rgba(245, 158, 11, 0.1) 4px, transparent 5px, transparent 8px)',
+			}}
+		>
+			<span className='font-medium'>Offline Mode</span>
 		</Badge>
 	)
 }

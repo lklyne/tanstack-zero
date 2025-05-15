@@ -31,6 +31,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarRail,
 } from '@/components/ui/sidebar'
 import { Link } from '@tanstack/react-router'
 

@@ -17,7 +17,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { authClient } from '@/lib/auth-client'
+import { authClient, signOut } from '@/lib/auth-client'
 import { useNavigate } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 
@@ -31,8 +31,9 @@ export function NavUser() {
 	const user = session.user
 
 	const handleSignout = async () => {
-		await authClient.signOut()
-		navigate({ to: '/' })
+		// Use our enhanced signOut function that handles cross-tab logout
+		await signOut()
+		// No need to navigate as signOut will redirect all tabs
 	}
 
 	const handleAccount = async () => {
