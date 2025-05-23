@@ -1,12 +1,10 @@
 import { authClient, signOut } from '@/lib/auth-client'
 import { clearJwt } from '@/server/auth/jwt'
-import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Button } from './ui/button'
 
 export function AccountDelete() {
 	const [isDeleting, setIsDeleting] = useState(false)
-	const navigate = useNavigate()
 
 	const deleteUser = async () => {
 		if (
@@ -26,15 +24,13 @@ export function AccountDelete() {
 			// which will delete the user from Zero
 			await authClient.deleteUser()
 
-			// Clear the JWT from both localStorage and cookies
+			// Clear the JWT from cookies
 			clearJwt()
 
-			// The user should be automatically signed out by Better Auth
-			// but we can call signOut just to be sure
+			// Use our enhanced signOut function which will redirect all tabs to login
 			await signOut()
 
-			// Navigate to home page after successful deletion
-			navigate({ to: '/' })
+			// No need to navigate as signOut will redirect all tabs
 		} catch (error) {
 			console.error('Failed to delete account:', error)
 			alert('Failed to delete your account. Please try again.')

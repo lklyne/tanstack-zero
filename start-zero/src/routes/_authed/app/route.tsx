@@ -15,14 +15,16 @@ export const Route = createFileRoute('/_authed/app')({
 
 function AppContent() {
 	return (
-		<SidebarProvider className='flex h-screen'>
-			<AppSidebar variant='inset' />
-			<div className='flex-1 p-2'>
-				<main className='h-full border border-border bg-background rounded flex flex-col overflow-hidden'>
-					<Outlet />
-				</main>
-			</div>
-		</SidebarProvider>
+		<>
+			<SidebarProvider className='flex h-screen'>
+				<AppSidebar variant='inset' />
+				<div className='flex-1 p-2'>
+					<main className='h-full border border-border bg-background rounded flex flex-col overflow-hidden'>
+						<Outlet />
+					</main>
+				</div>
+			</SidebarProvider>
+		</>
 	)
 }
 
@@ -33,18 +35,29 @@ function RouteComponent() {
 	// upsert user into Zero
 	useEffect(() => {
 		if (!zero || !auth) return
+
 		console.log('🔄 Upserting user into Zero')
-		zero.mutate.users.upsert({
-			id: auth.decoded.sub as string,
-			email: auth.decoded.email ?? '',
-			name: auth.decoded.name ?? '',
-		})
+
+		// Try-catch to handle any issues with user data
+		try {
+			zero.mutate.users.upsert({
+				id: auth.decoded.sub as string,
+				email: auth.decoded.email ?? '',
+				name: auth.decoded.name ?? '',
+			})
+		} catch (err) {
+			console.error('Error upserting user into Zero:', err)
+			// Continue rendering the app even if user upsert fails
+		}
 	}, [zero, auth])
 
-	if (!zero) return null
+	// If Zero is not available, show a loading indicator
+	if (!zero) {
+		return <div className='p-4'>Loading application data...</div>
+	}
 
 	return (
-		<Suspense fallback={null}>
+		<Suspense fallback={<div className='p-4'>Loading content...</div>}>
 			<ZeroProvider zero={zero}>
 				<AppContent />
 			</ZeroProvider>

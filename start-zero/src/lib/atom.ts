@@ -20,4 +20,10 @@ export class Atom<T> {
 			this.#subs.delete(cb)
 		}
 	}
+
+	// For useSyncExternalStore compatibility
+	getSnapshot = () => this.#val
+
+	// For server-side rendering support
+	getServerSnapshot = () => undefined
 }

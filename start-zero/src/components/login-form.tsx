@@ -53,7 +53,13 @@ export function LoginForm({
 			})
 
 			if (data) {
+				console.log('Login successful, data:', data)
+
+				// JWT is now automatically stored in cookies by Better Auth
+				// No need to manually store it
+
 				// Redirect to dashboard or home page after successful login
+				console.log('Navigating to app after login')
 				navigate({ to: '/app' })
 			} else {
 				// Handle login failure - attempt to parse error message if available

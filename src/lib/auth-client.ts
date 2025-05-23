@@ -14,7 +14,7 @@ let signoutChannel: BroadcastChannel | null = null
 
 // Initialize cross-tab communication
 if (typeof window !== 'undefined') {
-	// Try to use BroadcastChannel API (more reliable and doesn't use localStorage)
+	// Try to use BroadcastChannel API (more reliable and doesn\'t use localStorage)
 	try {
 		signoutChannel = new BroadcastChannel(SIGNOUT_CHANNEL_NAME)
 		signoutChannel.onmessage = (event) => {
@@ -32,7 +32,7 @@ if (typeof window !== 'undefined') {
 			}
 		}
 	} catch (err) {
-		// Fallback for browsers that don't support BroadcastChannel
+		// Fallback for browsers that don\'t support BroadcastChannel
 		console.warn(
 			'BroadcastChannel not supported, falling back to localStorage for signout events',
 		)
@@ -159,7 +159,7 @@ export async function getSession(
 
 	// If we have a session, update the authAtom
 	if (result && 'user' in result && result.user) {
-		// Get JWT from header if available (won't be in offline mode)
+		// Get JWT from header if available (won\'t be in offline mode)
 		const jwt = options?.fetchOptions?.onSuccess
 			? undefined // Custom handler will deal with it
 			: undefined // No direct access to response headers in result
@@ -212,7 +212,7 @@ async function checkSessionAndUpdateAtom(
 		return !!(session && 'user' in session && session.user)
 	} catch (err) {
 		console.warn('Error checking session:', err)
-		// If we're offline, consider existing auth valid
+		// If we\'re offline, consider existing auth valid
 		if (!navigator.onLine && authAtom.value?.decoded?.sub) {
 			return true
 		}
@@ -222,7 +222,7 @@ async function checkSessionAndUpdateAtom(
 
 // Hook to handle auth sync across tabs
 export function useAuthSync() {
-	// Keep track of whether we're already handling a logout
+	// Keep track of whether we\'re already handling a logout
 	const isHandlingLogout = useRef(false)
 
 	// Function to manually check auth status
@@ -247,7 +247,7 @@ export function useAuthSync() {
 	useEffect(() => {
 		// Set up interval to periodically check auth status
 		const intervalId = setInterval(() => {
-			// Only check auth if we're not already handling logout and we're online
+			// Only check auth if we\'re not already handling logout and we\'re online
 			if (!isHandlingLogout.current && navigator.onLine) {
 				checkSessionAndUpdateAtom(true).then((isAuthenticated) => {
 					if (!isAuthenticated && !isHandlingLogout.current) {

@@ -1,5 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
-
 import { FormAddress } from '@/components/form-address'
 import { FormSimple } from '@/components/form-simple'
 import NavApp from '@/components/nav-app'
@@ -7,12 +5,34 @@ import {
 	TsServerAction,
 	tsServerActionLoader,
 } from '@/components/ts-server-action'
+import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authed/app/_layout/tanstack-examples')({
 	component: RouteComponent,
-	loader: async () => ({
-		tsServerAction: await tsServerActionLoader(),
-	}),
+	loader: async () => {
+		try {
+			// Load the counter value and mark the route as online
+			const serverData = await tsServerActionLoader()
+			return {
+				initialCounter: serverData,
+				offline: false,
+			}
+		} catch (error) {
+			console.log('Offline mode detected for tanstack-examples')
+			// In case of offline mode, check localStorage for a cached value
+			let cachedValue = 0
+			if (typeof window !== 'undefined') {
+				const storedValue = localStorage.getItem('tsServerAction')
+				if (storedValue) {
+					cachedValue = Number(storedValue)
+				}
+			}
+			return {
+				initialCounter: cachedValue,
+				offline: true,
+			}
+		}
+	},
 })
 
 function RouteComponent() {

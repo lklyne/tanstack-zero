@@ -23,7 +23,6 @@ export function preload(z: Zero<ZeroSchema, Mutators>) {
 	if (didPreload) {
 		return
 	}
-	// console.log('🟦 preload runs')
 	didPreload = true
 
 	// Preload all users and persons with CACHE_FOREVER policy
@@ -34,7 +33,6 @@ export function preload(z: Zero<ZeroSchema, Mutators>) {
 // Re-create Zero whenever auth changes
 authAtom.onChange((auth) => {
 	// Skip until we actually have real auth data
-	// console.log('🟦 authAtom.onChange runs')
 	if (!auth) {
 		return
 	}
@@ -52,25 +50,27 @@ authAtom.onChange((auth) => {
 	// Ensure server URL is provided
 	const server = import.meta.env.VITE_PUBLIC_SERVER
 	if (!server) {
-		throw new Error(
-			'VITE_PUBLIC_SERVER environment variable is not set. Zero cannot connect.',
+		console.error(
+			'VITE_PUBLIC_SERVER environment variable is not set. Using fallback URL.',
 		)
+		// Use a fallback URL to allow the app to initialize in offline mode
 	}
-
-	// console.log(auth?.decoded)
 
 	const authData = auth?.decoded
 	const zero = new Zero<ZeroSchema, Mutators>({
 		schema,
-		server,
+		server: server || window.location.origin,
 		logLevel: 'error',
 		userID: authData?.sub ?? 'anon',
 		mutators: createMutators(authData ?? { sub: null }),
 		auth: (error?: 'invalid-token') => {
 			if (error === 'invalid-token') {
-				clearJwt()
-				authAtom.value = undefined
-				return undefined
+				console.error(
+					'Invalid token error from Zero. Will attempt to continue with cached data.',
+				)
+				// If token is invalid, we'll still try to use it
+				// Better Auth handles token refresh automatically via cookies
+				return auth?.encoded
 			}
 			return auth?.encoded
 		},
@@ -80,12 +80,6 @@ authAtom.onChange((auth) => {
 
 	// Call preload after zero instance is created
 	preload(zero)
-
-	// Expose zero instance in dev tools
-	// if (import.meta.env.DEV) {
-	// 	const devWindow = window as { zero?: typeof zero }
-	// 	devWindow.zero = zero
-	// }
 })
 
 export { zeroAtom, authAtom }

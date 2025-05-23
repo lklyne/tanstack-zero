@@ -1,13 +1,10 @@
 import { signOut } from '@/lib/auth-client'
-import { useNavigate } from '@tanstack/react-router'
 import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
 
 export function AccountLogout() {
-	const navigate = useNavigate()
-
 	const handleLogout = async () => {
-		navigate({ to: '/' })
+		// signOut now handles redirection to login page for all tabs
 		await signOut()
 	}
 

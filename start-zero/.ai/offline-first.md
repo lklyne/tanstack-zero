@@ -286,3 +286,11 @@ export function NetworkStatus() {
 3. Test navigation after token expiration while offline (should still work)
 4. Test data mutations while offline (should use Zero local cache)
 5. Test synchronization when coming back online
+
+Future look:
+
+https://nicholasgriffin.dev/blog/trying-out-tanstack-start-and-upgrading-fosdem-pwa#remaking-the-pwa-capabilities
+
+https://serwist.pages.dev/docs/vite
+
+vite pwa plugin: https://vite-pwa-org.netlify.app/ (after tanstack start upgrades from vinxi)
